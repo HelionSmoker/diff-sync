@@ -146,7 +146,7 @@
                 if (char === '"') {
                     isEscaped = !isEscaped
                 } else if ((char === '\t' || char === '\n') && !isEscaped) {
-                    rowValues.push(cellValue);
+                    rowValues.push(cellValue.trim());
                     cellValue = "";
                     if (char === '\n') {
                         result.push(rowValues);
@@ -167,29 +167,25 @@
         function mapJobs(rows, isSystem) {
             let result = {}
 
-            rows.forEach(row => {
-                const cols = row.map(col => {
-                    const colFmt = col.replaceAll('"', '').trim();
-                    return colFmt === "" ? "-" : colFmt
-                });
-
+            rows.forEach(cols => {
                 // Disregard empty rows
-                if (cols.filter(part => part !== "-").length < 1) return;
+                if (cols.length < 4 || cols[0] === "") return;
 
-                let [conf, vendor = "-", wname = "-"] = cols;
-                // Add non-assigned jobs
-                if (wname === "-" && conf in result) {
-                    while (wname in result[conf]) {
-                        wname += "-"
-                    }
+                let [conf, vendor, wname, start] = cols;
+
+                // Track non-assigned jobs. We modify the wname to have a unique entry in the hashmap.
+                // Duplicate entries in the Sheet will simply be ignored because a System counterpart
+                // will not be found.
+                while (conf in result && wname in result[conf]) {
+                    wname += " ";
                 }
 
-                let [uploadPeriod = "-", imageSource = "-", comment = "-"] = cols.slice(3, 6);
-                let start = cols[3] || "-"
+                let [uploadPeriod = "", source = "", comment = ""] = cols.slice(3, 6);
+                source = source === "" ? "CES App" : source
 
                 result[conf] = {
                     ...(result[conf] || {}),
-                    [toTitleCase(wname)]: [vendor, uploadPeriod, imageSource, comment, start]
+                    [toTitleCase(wname)]: [vendor, uploadPeriod, source, comment, start]
                 };
             });
             return result;
@@ -203,7 +199,7 @@
                         result.push([conf, system[conf][wname][0], wname, ...sheet[conf][wname].slice(1, -1), system[conf][wname][4]]);
                         continue
                     }
-                    result.push([conf, system[conf][wname][0], wname, '', 'CES App', '', system[conf][wname][4]]);
+                    result.push([conf, system[conf][wname][0], wname, "", "CES App", "", system[conf][wname][4]]);
                 }
             }
             return result
