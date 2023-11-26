@@ -1,24 +1,255 @@
-<html>
-  <head>
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sync Helper</title>
-    <style>
-      * {
+</head>
+<style>
+    :root {
+        /** CSS DARK THEME PRIMARY COLORS */
+        --color-primary-100:  #382bf0;
+        --color-primary-200:  #5e43f3;
+        --color-primary-300:  #7a5af5;
+        --color-primary-400:  #9171f8;
+        --color-primary-500:  #a688fa;
+        --color-primary-600:  #ba9ffb;
+        
+
+        /** CSS DARK THEME MIXED SURFACE COLORS */
+        --color-surface-mixed-100: #1a1625;
+        --color-surface-mixed-200: #2f2b3a;
+        --color-surface-mixed-300: #46424f;
+        --color-surface-mixed-400: #5e5a66;
+        --color-surface-mixed-500: #76737e;
+        --color-surface-mixed-600: #908d96;
+    }
+
+    * {
         margin: 0;
         padding: 0;
-      }
-      #textarea {
+        color: white;
+    }
+
+    body {
+        background-color: var(--color-surface-mixed-100);
+    }
+
+    #textarea-container {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding-top: 50px;
+    }
+
+    textarea {
+        width: 600px;
+        min-width: 100px;
+        height: 75vh;
+        margin: 20px 30px;
+        padding: 20px;
+        border-radius: 15px;
         resize: none;
-      }
-    </style>
-  </head>
-  <body>
+        outline: none;
+        overflow: auto;
+        background-color: var(--color-surface-mixed-200);
+    }
+
+    textarea:focus {
+        background-color: var(--color-surface-mixed-300);
+    }
+
+    #sync-button-container {
+        display: flex;
+        justify-content: center;
+    }
+
+    #sync-button {
+        background-color: var(--color-primary-400);
+        color: white;
+        padding: 16px 32px;
+        border: none;
+        border-radius: 50px;
+        cursor: pointer;
+    }
+
+    #sync-button:active {
+        background-color: var(--color-primary-500);
+    }
+
+    #table-container {
+        display: flex;
+        justify-content: center;
+        padding: 40px 0px 60px;
+    }
+
+    table {
+        border-collapse: collapse;
+        width: 1300px;
+        min-width: 300px;
+    }
+
+    td {
+        border: 2px solid var(--color-surface-mixed-200);
+        text-align: center;
+        padding: 8px 15px;
+    }
+
+    thead {
+        background-color: var(--color-surface-mixed-400);
+    }
+
+    thead > td {
+        padding: 15px;
+        font-weight: bold;
+    }
+</style>
+
+<body>
     <div id="textarea-container">
-      <textarea id="left-textarea" placeholder="Input the system jobs"></textarea>
-      <textarea id="right-textarea" placeholder="Input the spreadsheet jobs"></textarea>
+        <textarea id="textarea-left" placeholder="Input the system jobs"></textarea>
+        <textarea id="textarea-right" placeholder="Input the spreadsheet jobs"></textarea>
     </div>
     <div id="sync-button-container">
-      <button id="sync-button">Sync</button>
+        <button id="sync-button" onclick="processInput()">Sync</button>
     </div>
     <div id="table-container"></div>
-  </body>
+    <script>
+        function toTitleCase(str) {
+            return str.replace(/\w\S*/g, function (txt) {
+                return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
+            });
+        }
+
+        function copy(text) {
+            const textarea = document.createElement("textarea"); // Create a temporary textarea element
+            textarea.value = text;
+
+            document.body.appendChild(textarea); // Append the textarea to the DOM
+            textarea.select();
+            document.execCommand("copy");
+            document.body.removeChild(textarea); // Remove the temporary textarea
+        }
+
+        function parseJobs(input, targetLength) {
+            // When the cell contains a new line char, Sheets will wrap the cell in double quotes
+            // Sheets also uses a double quote to escape another double quote.
+            input = input.replaceAll(`""`, "");
+
+            let result = [];
+            let rowValues = [];
+            let cellValue = "";
+            let isEscaped = false;
+
+            for (var char of input) {
+                if (char === '"') {
+                    isEscaped = !isEscaped
+                } else if ((char === '\t' || char === '\n') && !isEscaped) {
+                    rowValues.push(cellValue);
+                    cellValue = "";
+                    if (char === '\n') {
+                        result.push(rowValues);
+                        rowValues = []
+                    }
+                } else if (char !== '\n') {
+                    cellValue += char;
+                }
+            }
+
+            // Add remaining values after the loop
+            if (cellValue) rowValues.push(cellValue);
+            if (rowValues.length > 0) result.push(rowValues);
+
+            return result
+        }
+
+        function mapJobs(rows, isSystem) {
+            let result = {}
+
+            rows.forEach(row => {
+                const cols = row.map(col => {
+                    const colFmt = col.replaceAll('"', '').trim();
+                    return colFmt === "" ? "-" : colFmt
+                });
+
+                // Disregard empty rows
+                if (cols.filter(part => part !== "-").length < 1) return;
+
+                let [conf, vendor = "-", wname = "-"] = cols;
+                // Add non-assigned jobs
+                if (wname === "-" && conf in result) {
+                    while (wname in result[conf]) {
+                        wname += "-"
+                    }
+                }
+
+                let [uploadPeriod = "", imageSource = "", comment = ""] = cols.slice(3, 6);
+                let start = cols[3] || "-"
+
+                result[conf] = {
+                    ...(result[conf] || {}),
+                    [toTitleCase(wname)]: [vendor, uploadPeriod, imageSource, comment, start]
+                };
+            });
+            return result;
+        }
+
+        function combine(system, sheet) {
+            let result = []
+            for (let conf in system) {
+                for (let wname in system[conf]) {
+                    if (conf in sheet && wname in sheet[conf]) {
+                        result.push([conf, system[conf][wname][0], wname, ...sheet[conf][wname].slice(1, -1), system[conf][wname][4]]);
+                        continue
+                    }
+                    result.push([conf, system[conf][wname][0], wname, '', 'CES App', '', system[conf][wname][4]]);
+                }
+            }
+            return result
+        }
+
+        function arrayToTable(array) {
+            var table = document.createElement('table');
+            var thead = document.createElement('thead');
+            table.appendChild(thead); 
+
+            ["Conf", "Vendor", "Name", "Upload", "Source", "Comment", "Start Time"].forEach(cellText => {
+                var headerCell = document.createElement("td");
+                thead.appendChild(headerCell);
+                headerCell.textContent = cellText;
+            })
+
+            array.forEach(row => {
+                const rowNode = table.insertRow();
+                row.forEach(cell => {
+                    const cellNode = rowNode.insertCell();
+                    cellNode.textContent = cell;
+                })
+            })
+
+            return table;
+        }
+
+        function processInput() {
+            // Note: .textContent will return an empty string
+            const [leftArea, rightArea] = [...document.getElementById("textarea-container").children]
+                .map(node => node.value.trim());
+
+            const systemJobs = mapJobs(parseJobs(leftArea), true);
+            const sheetJobs = mapJobs(parseJobs(rightArea), false);
+
+            const tableContainer = document.getElementById('table-container');
+            // Remove previous table before adding another one
+            while (tableContainer.firstChild) {
+                tableContainer.removeChild(tableContainer.firstChild);
+            }
+            const combinedJobs = combine(systemJobs, sheetJobs)
+            tableContainer.appendChild(arrayToTable(combinedJobs));
+            
+            copy(combinedJobs.map(row => row.join('\t')).join('\n'))
+        }
+    </script>
+</body>
+
 </html>
