@@ -132,6 +132,15 @@
             document.body.removeChild(textarea); // Remove the temporary textarea
         }
         
+        function sortArrayWithDate(arr, pos) {
+            // .slice() to create a new array
+            return arr.slice().sort((a, b) => {
+              const timeA = a[pos] === "" ? Infinity : new Date("Jan 1 " + a[pos]);
+              const timeB = b[pos] === "" ? Infinity : new Date("Jan 1 " + b[pos]);
+              return timeA - timeB;
+            });
+        }
+        
         function parseJobs(input, targetLength) {
             // When the cell contains a new line char, Sheets will wrap the cell in double quotes
             // Sheets also uses a double quote to escape another double quote.
@@ -246,13 +255,11 @@
             while (tableContainer.firstChild) {
                 tableContainer.removeChild(tableContainer.firstChild);
             }
-            const combinedJobs = combine(systemJobs, sheetJobs, systemRows.length, sheetRows.length);
+            const combinedJobs = sortArrayWithDate(combine(systemJobs, sheetJobs, systemRows.length, sheetRows.length), 6);
             tableContainer.appendChild(arrayToTable(combinedJobs));
-            
-            copy(combinedJobs.map(row => row.join('\t')).join('\n'))
-        }
         
-        processInput()
+            copy(combinedJobs.map(row => row.join('\t')).join('\n'));
+        }
     </script>
 </body>
 
