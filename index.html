@@ -121,27 +121,27 @@
                 return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
             });
         }
-
+        
         function copy(text) {
             const textarea = document.createElement("textarea"); // Create a temporary textarea element
             textarea.value = text;
-
+        
             document.body.appendChild(textarea); // Append the textarea to the DOM
             textarea.select();
             document.execCommand("copy");
             document.body.removeChild(textarea); // Remove the temporary textarea
         }
-
+        
         function parseJobs(input, targetLength) {
             // When the cell contains a new line char, Sheets will wrap the cell in double quotes
             // Sheets also uses a double quote to escape another double quote.
             input = input.replaceAll(`""`, "");
-
+        
             let result = [];
             let rowValues = [];
             let cellValue = "";
             let isEscaped = false;
-
+        
             for (var char of input) {
                 if (char === '"') {
                     isEscaped = !isEscaped
@@ -156,33 +156,33 @@
                     cellValue += char;
                 }
             }
-
+        
             // Add remaining values after the loop
             if (cellValue) rowValues.push(cellValue);
             if (rowValues.length > 0) result.push(rowValues);
-
+        
             return result
         }
-
-        function mapJobs(rows, isSystem) {
+        
+        function mapJobs(rows) {
             let result = {}
-
+        
             rows.forEach(cols => {
                 // Disregard empty rows
                 if (cols.length < 4 || cols[0] === "") return;
-
+        
                 let [conf, vendor, wname, start] = cols;
-
+        
                 // Track non-assigned jobs. We modify the wname to have a unique entry in the hashmap.
                 // Duplicate entries in the Sheet will simply be ignored because a System counterpart
                 // will not be found.
                 while (conf in result && wname in result[conf]) {
                     wname += " ";
                 }
-
+        
                 let [uploadPeriod = "", source = "", comment = ""] = cols.slice(3, 6);
                 source = source === "" ? "CES App" : source
-
+        
                 result[conf] = {
                     ...(result[conf] || {}),
                     [toTitleCase(wname)]: [vendor, uploadPeriod, source, comment, start]
@@ -190,8 +190,8 @@
             });
             return result;
         }
-
-        function combine(system, sheet) {
+        
+        function combine(system, sheet, systemRawCount, sheetRowCount) {
             let result = []
             for (let conf in system) {
                 for (let wname in system[conf]) {
@@ -202,49 +202,57 @@
                     result.push([conf, system[conf][wname][0], wname, "", "CES App", "", system[conf][wname][4]]);
                 }
             }
+            for (let i = systemRawCount; i < sheetRowCount; i++) {
+                result.push(["", "", "", "", "CES App", "", ""])
+            }
             return result
         }
-
+        
         function arrayToTable(array) {
             var table = document.createElement('table');
             var thead = document.createElement('thead');
             table.appendChild(thead); 
-
+        
             ["Conf", "Vendor", "Name", "Upload", "Source", "Comment", "Start Time"].forEach(cellText => {
                 var headerCell = document.createElement("td");
                 thead.appendChild(headerCell);
                 headerCell.textContent = cellText;
             })
-
+        
             array.forEach(row => {
+                if (row[0] === "") return;
                 const rowNode = table.insertRow();
                 row.forEach(cell => {
                     const cellNode = rowNode.insertCell();
                     cellNode.textContent = cell;
                 })
             })
-
+        
             return table;
         }
-
+        
         function processInput() {
             // Note: .textContent will return an empty string
             const [leftArea, rightArea] = [...document.getElementById("textarea-container").children]
                 .map(node => node.value.trim());
-
-            const systemJobs = mapJobs(parseJobs(leftArea), true);
-            const sheetJobs = mapJobs(parseJobs(rightArea), false);
-
+        
+            const systemRows = parseJobs(leftArea);
+            const systemJobs = mapJobs(systemRows);
+            const sheetRows = parseJobs(rightArea);
+            const sheetJobs = mapJobs(sheetRows);
+        
             const tableContainer = document.getElementById('table-container');
             // Remove previous table before adding another one
             while (tableContainer.firstChild) {
                 tableContainer.removeChild(tableContainer.firstChild);
             }
-            const combinedJobs = combine(systemJobs, sheetJobs)
+            const combinedJobs = combine(systemJobs, sheetJobs, systemRows.length, sheetRows.length);
             tableContainer.appendChild(arrayToTable(combinedJobs));
             
             copy(combinedJobs.map(row => row.join('\t')).join('\n'))
         }
+        
+        processInput()
     </script>
 </body>
 
