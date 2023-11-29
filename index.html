@@ -106,7 +106,7 @@
     }
 
     #row-count-container {
-        display: flex;
+        display: none;
         justify-content: center;
         padding-bottom: 40px;
     }
@@ -115,7 +115,6 @@
         background-color: var(--color-surface-mixed-400);
         padding: 10px 20px;
         border-radius: 15px;
-        display: none;
     }
 </style>
 
@@ -303,9 +302,10 @@
             const tableContainer = document.getElementById("table-container");
             tableContainer.style.display = "flex";
 
-            const rowCountNode = document.getElementById("row-count");
+            const rowCountContainer = document.getElementById("row-count-container");
+            const rowCountNode = rowCountContainer.firstElementChild;
             rowCountNode.textContent = `Row count: ${systemRowCount}`;
-            rowCountNode.style.display = "block";
+            rowCountContainer.style.display = "flex";
 
             copy(combinedJobs.map(row => row.join('\t')).join('\n'));
         }
