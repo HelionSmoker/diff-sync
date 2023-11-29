@@ -57,15 +57,16 @@
     }
 
     textarea:focus {
-        background-color: var(--color-surface-mixed-300);
+        box-shadow: 0 0 30px var(--color-surface-mixed-400);
     }
 
-    #sync-button-container {
+    #buttons-container {
         display: flex;
         justify-content: center;
+        gap: 30px;
     }
 
-    #sync-button {
+    .action-button {
         background-color: var(--color-primary-400);
         color: white;
         padding: 16px 32px;
@@ -74,7 +75,7 @@
         cursor: pointer;
     }
 
-    #sync-button:active {
+    .action-button:hover {
         background-color: var(--color-primary-500);
     }
 
@@ -90,19 +91,27 @@
         min-width: 300px;
     }
 
-    td {
-        border: 2px solid var(--color-surface-mixed-200);
-        text-align: center;
-        padding: 8px 15px;
-    }
-
     thead {
-        background-color: var(--color-surface-mixed-400);
+        background-color: var(--color-primary-300);
     }
 
-    thead>td {
+    thead>tr>td {
         padding: 15px;
         font-weight: bold;
+    }
+
+    tbody>tr:nth-child(even) {
+        background-color: var(--color-surface-mixed-300);
+    }
+
+    tbody>tr:nth-child(odd) {
+        background-color: var(--color-surface-mixed-200);
+    }
+
+    td {
+        border: 2px solid var(--color-surface-mixed-400);
+        text-align: center;
+        padding: 8px 15px;
     }
 
     #row-count-container {
@@ -123,13 +132,15 @@
         <textarea id="textarea-left" placeholder="Input the system jobs"></textarea>
         <textarea id="textarea-right" placeholder="Input the spreadsheet jobs"></textarea>
     </div>
-    <div id="sync-button-container">
-        <button id="sync-button" onclick="processInput()">Sync & Copy</button>
+    <div id="buttons-container">
+        <button class="action-button" onclick="processInput()">Sync</button>
+        <button class="action-button" onclick="copyRows()">Copy</button>
     </div>
     <div id="table-container">
         <table>
             <thead>
                 <tr>
+                    <td>Date</td>
                     <td>Conf</td>
                     <td>Vendor</td>
                     <td>Name</td>
@@ -163,11 +174,12 @@
             document.body.removeChild(textarea); // Remove the temporary textarea
         }
 
-        function sortArrayWithDate(arr, pos) {
-            // .slice() to create a new array
+        function sortArrayWithTime(arr, pos) {
+            // Note: .slice() to create a new array
+            const upperBound = new Date("9999-01-01");
             return arr.slice().sort((a, b) => {
-                const timeA = a[pos] === "" ? Infinity : new Date("Jan 1 " + a[pos]);
-                const timeB = b[pos] === "" ? Infinity : new Date("Jan 1 " + b[pos]);
+                const timeA = a[pos] === "" ? upperBound : new Date("1970-01-01 " + a[pos]);
+                const timeB = b[pos] === "" ? upperBound : new Date("1970-01-01 " + b[pos]);
                 return timeA - timeB;
             });
         }
@@ -204,12 +216,12 @@
             return result
         }
 
-        function mapJobs(rows) {
+        function mapJobsSystem(rows) {
             let result = {}
 
             rows.forEach(cols => {
                 // Disregard empty rows
-                if (cols.length < 4 || cols[0] === "") return;
+                if (cols[0] === "" || cols.length < 4) return;
 
                 let [conf, vendor, wname, start] = cols;
 
@@ -219,15 +231,38 @@
                 while (conf in result && wname in result[conf]) {
                     wname += " ";
                 }
+                result[conf] = {
+                    ...(result[conf] || {}),
+                    [toTitleCase(wname)]: [vendor, start]
+                };
+            });
+            return result;
+        }
 
-                let [uploadPeriod = "", source = "", comment = ""] = cols.slice(3, 6);
-                source = source === "" ? "CES App" : source
+        function mapJobsSheet(rows) {
+            let result = {};
+            let globalDate = "";
+
+            rows.forEach(cols => {
+                // Disregard empty rows
+                if (cols[1] === "" || cols.length < 8) return;
+
+                let [date, conf, vendor, wname, uploadPeriod, source, comment] = cols;
+
+                if (date !== "" && globalDate === "") {
+                    globalDate = date;
+                }
+                if (source === "") {
+                    source = "CES App"
+                }
 
                 result[conf] = {
                     ...(result[conf] || {}),
-                    [toTitleCase(wname)]: [vendor, uploadPeriod, source, comment, start]
+                    [toTitleCase(wname)]: [uploadPeriod, source, comment]
                 };
             });
+            result["globalDate"] = globalDate;
+
             return result;
         }
 
@@ -241,23 +276,26 @@
             }
         }
 
-        function combine(system, sheet, systemRawCount, sheetRowCount) {
-            let result = []
+        function combine(system, sheet, systemRowCount, sheetRowCount) {
+            let result = [];
+            // We assume the subentry's value is correct and it is the date of the entire set
+            let date = sheet["globalDate"];
+
             for (let conf in system) {
                 for (let wname in system[conf]) {
+                    let manualValues = ["", "CES App", ""];
                     if (conf in sheet && wname in sheet[conf]) {
-                        result.push([conf, system[conf][wname][0], wname, ...sheet[conf][wname].slice(1, -1), system[conf][wname][4]]);
-                        continue
+                        manualValues = sheet[conf][wname]
                     }
-                    result.push([conf, system[conf][wname][0], wname, "", "CES App", "", system[conf][wname][4]]);
+                    result.push([date, conf, system[conf][wname][0], wname, ...manualValues, system[conf][wname][1]]);
                 }
             }
 
             // Getting the max between them ensures we always mask the sheet jobs
-            const maskLength = Math.max(calcMaskLength(systemRawCount), calcMaskLength(sheetRowCount));
+            const maskLength = Math.max(calcMaskLength(systemRowCount), calcMaskLength(sheetRowCount));
 
             // Subtract 2 due to header.
-            result = [...result, ...Array(maskLength - result.length - 2).fill(["", "", "", "", "CES App", "", ""])];
+            result = [...result, ...Array(maskLength - result.length - 2).fill([date, "", "", "", "", "CES App", "", ""])];
 
             return result
         }
@@ -270,7 +308,8 @@
 
         function addTableBody(array, tbody) {
             array.forEach(row => {
-                if (row[0] === "") return;
+                // Note: row[0] is the date, which is typically never empty
+                if (row[1] === "") return;
                 const rowNode = tbody.insertRow();
                 row.forEach(cell => {
                     const cellNode = rowNode.insertCell();
@@ -282,22 +321,30 @@
         function countRows(obj) {
             return Object.values(obj).reduce((acc, value) => acc + Object.keys(value).length, 0);
         }
-        
+
+        function showSuccessState(button, oldContent) {
+            button.textContent = "Success!";
+            setTimeout(() => { button.innerText = oldContent }, 1000);
+        }
+
+        let globalRows = [];
+
         function processInput() {
             // Note: .textContent will return an empty string
             const [leftArea, rightArea] = [...document.getElementById("textarea-container").children]
                 .map(node => node.value.trim());
 
-            const systemJobs = mapJobs(parseJobs(leftArea));
+            const systemJobs = mapJobsSystem(parseJobs(leftArea));
             const systemRowCount = countRows(systemJobs);
-            const sheetJobs = mapJobs(parseJobs(rightArea));
+            const sheetJobs = mapJobsSheet(parseJobs(rightArea));
 
             const tableBody = document.body.getElementsByTagName("tbody")[0];
             // Remove previous rows before adding another new ones
             clearTableBody(tableBody);
 
-            const combinedJobs = sortArrayWithDate(combine(systemJobs, sheetJobs, systemRowCount, countRows(sheetJobs)), 6);
-            addTableBody(combinedJobs, tableBody);
+            const combinedJobs = combine(systemJobs, sheetJobs, systemRowCount, countRows(sheetJobs));
+            const combinedJobsSorted = sortArrayWithTime(combinedJobs, 7);
+            addTableBody(combinedJobsSorted, tableBody);
 
             const tableContainer = document.getElementById("table-container");
             tableContainer.style.display = "flex";
@@ -307,7 +354,17 @@
             rowCountNode.textContent = `Row count: ${systemRowCount}`;
             rowCountContainer.style.display = "flex";
 
-            copy(combinedJobs.map(row => row.join('\t')).join('\n'));
+            globalRows = combinedJobsSorted;
+        }
+
+        function copyRows() {
+            const copyButton = document.getElementById("buttons-container").children[1];
+            if (globalRows.length === 0) {
+                processInput();
+            }
+
+            copy(globalRows.map(row => row.join('\t')).join('\n'));
+            showSuccessState(copyButton, "Copy")
         }
     </script>
 </body>
