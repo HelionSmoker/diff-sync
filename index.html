@@ -10,13 +10,13 @@
 <style>
     :root {
         /** CSS DARK THEME PRIMARY COLORS */
-        --color-primary-100:  #382bf0;
-        --color-primary-200:  #5e43f3;
-        --color-primary-300:  #7a5af5;
-        --color-primary-400:  #9171f8;
-        --color-primary-500:  #a688fa;
-        --color-primary-600:  #ba9ffb;
-        
+        --color-primary-100: #382bf0;
+        --color-primary-200: #5e43f3;
+        --color-primary-300: #7a5af5;
+        --color-primary-400: #9171f8;
+        --color-primary-500: #a688fa;
+        --color-primary-600: #ba9ffb;
+
 
         /** CSS DARK THEME MIXED SURFACE COLORS */
         --color-surface-mixed-100: #1a1625;
@@ -79,9 +79,9 @@
     }
 
     #table-container {
-        display: flex;
+        display: none;
         justify-content: center;
-        padding: 40px 0px 60px;
+        padding: 40px 0px 20px;
     }
 
     table {
@@ -100,9 +100,22 @@
         background-color: var(--color-surface-mixed-400);
     }
 
-    thead > td {
+    thead>td {
         padding: 15px;
         font-weight: bold;
+    }
+
+    #row-count-container {
+        display: flex;
+        justify-content: center;
+        padding-bottom: 40px;
+    }
+
+    #row-count {
+        background-color: var(--color-surface-mixed-400);
+        padding: 10px 20px;
+        border-radius: 15px;
+        display: none;
     }
 </style>
 
@@ -114,43 +127,62 @@
     <div id="sync-button-container">
         <button id="sync-button" onclick="processInput()">Sync & Copy</button>
     </div>
-    <div id="table-container"></div>
+    <div id="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <td>Conf</td>
+                    <td>Vendor</td>
+                    <td>Name</td>
+                    <td>Upload</td>
+                    <td>Source</td>
+                    <td>Comment</td>
+                    <td>Start Time</td>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+    <div id="row-count-container">
+        <div id="row-count"></div>
+    </div>
+
     <script>
         function toTitleCase(str) {
             return str.replace(/\w\S*/g, function (txt) {
                 return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
             });
         }
-        
+
         function copy(text) {
             const textarea = document.createElement("textarea"); // Create a temporary textarea element
             textarea.value = text;
-        
+
             document.body.appendChild(textarea); // Append the textarea to the DOM
             textarea.select();
             document.execCommand("copy");
             document.body.removeChild(textarea); // Remove the temporary textarea
         }
-        
+
         function sortArrayWithDate(arr, pos) {
             // .slice() to create a new array
             return arr.slice().sort((a, b) => {
-              const timeA = a[pos] === "" ? Infinity : new Date("Jan 1 " + a[pos]);
-              const timeB = b[pos] === "" ? Infinity : new Date("Jan 1 " + b[pos]);
-              return timeA - timeB;
+                const timeA = a[pos] === "" ? Infinity : new Date("Jan 1 " + a[pos]);
+                const timeB = b[pos] === "" ? Infinity : new Date("Jan 1 " + b[pos]);
+                return timeA - timeB;
             });
         }
-        
+
         function parseJobs(input, targetLength) {
             // When the cell contains a new line char, Sheets will wrap the cell in double quotes
             // Sheets also uses a double quote to escape another double quote.
             input = input.replaceAll(`""`, "");
-        
+
             let result = [];
             let rowValues = [];
             let cellValue = "";
             let isEscaped = false;
-        
+
             for (var char of input) {
                 if (char === '"') {
                     isEscaped = !isEscaped
@@ -165,33 +197,33 @@
                     cellValue += char;
                 }
             }
-        
+
             // Add remaining values after the loop
             if (cellValue) rowValues.push(cellValue);
             if (rowValues.length > 0) result.push(rowValues);
-        
+
             return result
         }
-        
+
         function mapJobs(rows) {
             let result = {}
-        
+
             rows.forEach(cols => {
                 // Disregard empty rows
                 if (cols.length < 4 || cols[0] === "") return;
-        
+
                 let [conf, vendor, wname, start] = cols;
-        
+
                 // Track non-assigned jobs. We modify the wname to have a unique entry in the hashmap.
                 // Duplicate entries in the Sheet will simply be ignored because a System counterpart
                 // will not be found.
                 while (conf in result && wname in result[conf]) {
                     wname += " ";
                 }
-        
+
                 let [uploadPeriod = "", source = "", comment = ""] = cols.slice(3, 6);
                 source = source === "" ? "CES App" : source
-        
+
                 result[conf] = {
                     ...(result[conf] || {}),
                     [toTitleCase(wname)]: [vendor, uploadPeriod, source, comment, start]
@@ -199,7 +231,17 @@
             });
             return result;
         }
-        
+
+        function calcMaskLength(rowCount) {
+            if (rowCount < 100) {
+                return 100
+            } else if (rowCount < 250) {
+                return 250
+            } else {
+                return Math.ceil(rowCount / 10) * 10
+            }
+        }
+
         function combine(system, sheet, systemRawCount, sheetRowCount) {
             let result = []
             for (let conf in system) {
@@ -211,53 +253,60 @@
                     result.push([conf, system[conf][wname][0], wname, "", "CES App", "", system[conf][wname][4]]);
                 }
             }
-            for (let i = systemRawCount; i < sheetRowCount; i++) {
-                result.push(["", "", "", "", "CES App", "", ""])
-            }
+
+            // Getting the max between them ensures we always mask the sheet jobs
+            const maskLength = Math.max(calcMaskLength(systemRawCount), calcMaskLength(sheetRowCount));
+
+            // Subtract 2 due to header.
+            result = [...result, ...Array(maskLength - result.length - 2).fill(["", "", "", "", "CES App", "", ""])];
+
             return result
         }
-        
-        function arrayToTable(array) {
-            var table = document.createElement('table');
-            var thead = document.createElement('thead');
-            table.appendChild(thead); 
-        
-            ["Conf", "Vendor", "Name", "Upload", "Source", "Comment", "Start Time"].forEach(cellText => {
-                var headerCell = document.createElement("td");
-                thead.appendChild(headerCell);
-                headerCell.textContent = cellText;
-            })
-        
+
+        function clearTableBody(tbody) {
+            while (tbody.firstChild) {
+                tbody.removeChild(tbody.firstChild);
+            }
+        }
+
+        function addTableBody(array, tbody) {
             array.forEach(row => {
                 if (row[0] === "") return;
-                const rowNode = table.insertRow();
+                const rowNode = tbody.insertRow();
                 row.forEach(cell => {
                     const cellNode = rowNode.insertCell();
                     cellNode.textContent = cell;
                 })
             })
-        
-            return table;
+        }
+
+        function countRows(obj) {
+            return Object.values(obj).reduce((acc, value) => acc + Object.keys(value).length, 0);
         }
         
         function processInput() {
             // Note: .textContent will return an empty string
             const [leftArea, rightArea] = [...document.getElementById("textarea-container").children]
                 .map(node => node.value.trim());
-        
-            const systemRows = parseJobs(leftArea);
-            const systemJobs = mapJobs(systemRows);
-            const sheetRows = parseJobs(rightArea);
-            const sheetJobs = mapJobs(sheetRows);
-        
-            const tableContainer = document.getElementById('table-container');
-            // Remove previous table before adding another one
-            while (tableContainer.firstChild) {
-                tableContainer.removeChild(tableContainer.firstChild);
-            }
-            const combinedJobs = sortArrayWithDate(combine(systemJobs, sheetJobs, systemRows.length, sheetRows.length), 6);
-            tableContainer.appendChild(arrayToTable(combinedJobs));
-        
+
+            const systemJobs = mapJobs(parseJobs(leftArea));
+            const systemRowCount = countRows(systemJobs);
+            const sheetJobs = mapJobs(parseJobs(rightArea));
+
+            const tableBody = document.body.getElementsByTagName("tbody")[0];
+            // Remove previous rows before adding another new ones
+            clearTableBody(tableBody);
+
+            const combinedJobs = sortArrayWithDate(combine(systemJobs, sheetJobs, systemRowCount, countRows(sheetJobs)), 6);
+            addTableBody(combinedJobs, tableBody);
+
+            const tableContainer = document.getElementById("table-container");
+            tableContainer.style.display = "flex";
+
+            const rowCountNode = document.getElementById("row-count");
+            rowCountNode.textContent = `Row count: ${systemRowCount}`;
+            rowCountNode.style.display = "block";
+
             copy(combinedJobs.map(row => row.join('\t')).join('\n'));
         }
     </script>
