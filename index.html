@@ -354,13 +354,14 @@
         
             const systemJobs = mapJobsSystem(parseJobs(leftArea));
             const systemRowCount = countRows(systemJobs);
-            const sheetJobs = mapJobsSheet(parseJobs(rightArea));
+            const sheetjobsRows = parseJobs(rightArea);
+            const sheetJobs = mapJobsSheet(sheetjobsRows);
 
             const tableBody = document.body.getElementsByTagName("tbody")[0];
             // Remove previous rows before adding another new ones
             clearTableBody(tableBody);
         
-            const combinedJobs = combine(systemJobs, sheetJobs, systemRowCount, countRows(sheetJobs));
+            const combinedJobs = combine(systemJobs, sheetJobs, systemRowCount, sheetJobs.length);
             const combinedJobsSorted = sortArrayWithTime(combinedJobs, 7);
             addTableBody(combinedJobsSorted, tableBody);
         
