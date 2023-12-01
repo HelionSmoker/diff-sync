@@ -287,8 +287,7 @@
         }
         
         function calcMaskLength(rowCount) {
-            // Subtract 2 due to header
-            return rowCount < 248 ? 250 : Math.ceil(rowCount / 10) * 10
+            return rowCount < 248 ? 250 : (Math.ceil(rowCount / 10) + 1) * 10
         }
         
         function combine(system, sheet, systemRowCount, sheetRowCount) {
@@ -304,8 +303,10 @@
                     result.push([date, conf, system[conf][wname][0], wname, ...manualValues, system[conf][wname][1]]);
                 }
             }
-            const systemMaskLength = calcMaskLength(systemRowCount);
-            const sheetMaskLength = calcMaskLength(sheetRowCount);
+            
+            // Subtract 2 due to header
+            const systemMaskLength = calcMaskLength(systemRowCount) - 2;
+            const sheetMaskLength = calcMaskLength(sheetRowCount) - 2;
         
             result = [...result, ...Array(systemMaskLength - result.length).fill([date, "", "", "", "", "CES App", "", ""])];
 
