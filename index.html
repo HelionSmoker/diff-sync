@@ -266,12 +266,9 @@
                 let [date, conf, vendor, wname, uploadPeriod, source, comment] = cols;
                 conf = parseConf(conf);
         
-                if (date !== "" && !isNaN(Date.parse(date))) {
-                    if (date in dateToCount) {
-                        dateToCount[date] += 1;
-                    } else {
-                        dateToCount[date] = 1
-                    }
+                if (!isNaN(Date.parse(date))) {
+                    // Note: if dateToCount[date] is undefined it will be replaced by 0
+                    dateToCount[date] = (dateToCount[date] ?? 0) + 1;
                 }
                 if (source === "") {
                     source = "CES App"
@@ -290,18 +287,12 @@
         }
         
         function calcMaskLength(rowCount) {
-            if (rowCount < 100) {
-                return 100
-            } else if (rowCount < 250) {
-                return 250
-            } else {
-                return Math.ceil(rowCount / 10) * 10
-            }
+            // Subtract 2 due to header
+            return rowCount < 248 ? 250 : Math.ceil(rowCount / 10) * 10
         }
         
         function combine(system, sheet, systemRowCount, sheetRowCount) {
             let result = [];
-            // We assume the subentry's value is correct and it is the date of the entire set
             let date = sheet["globalDate"];
         
             for (let conf in system) {
@@ -313,12 +304,15 @@
                     result.push([date, conf, system[conf][wname][0], wname, ...manualValues, system[conf][wname][1]]);
                 }
             }
+            const systemMaskLength = calcMaskLength(systemRowCount);
+            const sheetMaskLength = calcMaskLength(sheetRowCount);
         
-            // Getting the max between them ensures we always mask the sheet jobs
-            const maskLength = Math.max(calcMaskLength(systemRowCount), calcMaskLength(sheetRowCount));
-        
-            // Subtract 2 due to header.
-            result = [...result, ...Array(maskLength - result.length - 2).fill([date, "", "", "", "", "CES App", "", ""])];
+            result = [...result, ...Array(systemMaskLength - result.length).fill([date, "", "", "", "", "CES App", "", ""])];
+
+            // Create an anchor point in Sheets so deleting these rows is easier
+            if (sheetMaskLength > systemMaskLength) {
+                result = [...result, ...Array(sheetMaskLength - result.length).fill(["", "", "", "", "", "", "", ""])];
+            }
         
             return result
         }
@@ -360,7 +354,7 @@
             const systemJobs = mapJobsSystem(parseJobs(leftArea));
             const systemRowCount = countRows(systemJobs);
             const sheetJobs = mapJobsSheet(parseJobs(rightArea));
-        
+
             const tableBody = document.body.getElementsByTagName("tbody")[0];
             // Remove previous rows before adding another new ones
             clearTableBody(tableBody);
