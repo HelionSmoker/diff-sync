@@ -1,17 +1,12 @@
-function toTitleCase(str) {
-	return str.replace(/\w\S*/g, function (txt) {
-		return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
-	});
-}
-
 function copy(text) {
-	const textarea = document.createElement("textarea"); // Create a temporary textarea element
-	textarea.value = text;
-
-	document.body.appendChild(textarea); // Append the textarea to the DOM
-	textarea.select();
-	document.execCommand("copy");
-	document.body.removeChild(textarea); // Remove the temporary textarea
+	navigator.clipboard.writeText(text).then(
+		function () {
+			console.log(`Copied: ${text}`);
+		},
+		function (err) {
+			console.error("Could not copy text: ", err);
+		}
+	);
 }
 
 function sortArrayWithTime(arr, pos) {
@@ -36,13 +31,25 @@ function findMostFrequent(freqMap) {
 	return sortedEntries.length > 0 ? sortedEntries[0][0] : undefined;
 }
 
+function toTitleCase(str) {
+	return str.replace(/\w\S*/g, function (txt) {
+		return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
+	});
+}
+
 function parseConf(conf) {
 	// A future-proof way to extract the conf ('100064706' -> 64706)
-	const confInt = parseInt(conf);
+	const confInt = parseInt(conf.replace(/\D/g, ''));
 	return confInt > 10 ** 8 ? confInt - 10 ** 8 : confInt;
 }
 
-function parseJobs(input, targetLength) {
+function parseName(name) {
+	// Keep only alpha chars and space (\s)
+	const result = name.replace(/[^a-zA-Z\s]/g, "");
+	return toTitleCase(result)
+}
+
+function parseJobs(input) {
 	// When the cell contains a new line char, Sheets will wrap the cell in double quotes
 	// Sheets also uses a double quote to escape another double quote.
 	input = input.replaceAll(`""`, "");
@@ -90,9 +97,10 @@ function mapJobsSystem(rows) {
 		while (conf in result && wname in result[conf]) {
 			wname += " ";
 		}
+
 		result[conf] = {
 			...(result[conf] || {}),
-			[toTitleCase(wname)]: [vendor, start],
+			[parseName(wname)]: [vendor, start],
 		};
 	});
 	return result;
@@ -106,7 +114,7 @@ function mapJobsSheet(rows) {
 		// Disregard empty rows
 		if (cols[1] === "" || cols.length < 8) return;
 
-		let [date, conf, vendor, wname, uploadPeriod, source, comment] = cols;
+		let [date, conf, _vendor, wname, uploadPeriod, source, comment] = cols;
 		conf = parseConf(conf);
 
 		if (!isNaN(Date.parse(date))) {
@@ -117,9 +125,14 @@ function mapJobsSheet(rows) {
 			source = "CES App";
 		}
 
+		uploadPeriod = uploadPeriod.toLowerCase();
+		if (!(["before", "during"].includes(uploadPeriod))) {
+			uploadPeriod = "";
+		}
+
 		result[conf] = {
 			...(result[conf] || {}),
-			[toTitleCase(wname)]: [uploadPeriod, source, comment],
+			[parseName(wname)]: [uploadPeriod, source, comment],
 		};
 	});
 
