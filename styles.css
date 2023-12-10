@@ -1,0 +1,117 @@
+:root {
+	/** CSS DARK THEME PRIMARY COLORS */
+	--color-primary-100: #382bf0;
+	--color-primary-200: #5e43f3;
+	--color-primary-300: #7a5af5;
+	--color-primary-400: #9171f8;
+	--color-primary-500: #a688fa;
+	--color-primary-600: #ba9ffb;
+
+
+	/** CSS DARK THEME MIXED SURFACE COLORS */
+	--color-surface-mixed-100: #1a1625;
+	--color-surface-mixed-200: #2f2b3a;
+	--color-surface-mixed-300: #46424f;
+	--color-surface-mixed-400: #5e5a66;
+	--color-surface-mixed-500: #76737e;
+	--color-surface-mixed-600: #908d96;
+}
+
+* {
+	margin: 0;
+	padding: 0;
+	color: white;
+}
+
+body {
+	background-color: var(--color-surface-mixed-100);
+}
+
+#textarea-container {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding-top: 50px;
+}
+
+textarea {
+	width: 600px;
+	min-width: 100px;
+	height: 75vh;
+	margin: 20px 30px;
+	padding: 20px;
+	border-radius: 15px;
+	resize: none;
+	outline: none;
+	background-color: var(--color-surface-mixed-200);
+}
+
+textarea:focus {
+	box-shadow: 0 0 30px var(--color-surface-mixed-400);
+}
+
+#buttons-container {
+	display: flex;
+	justify-content: center;
+	gap: 30px;
+}
+
+.action-button {
+	background-color: var(--color-primary-400);
+	color: white;
+	padding: 16px 32px;
+	border: none;
+	border-radius: 50px;
+	cursor: pointer;
+}
+
+.action-button:hover {
+	background-color: var(--color-primary-500);
+}
+
+#table-container {
+	display: none;
+	justify-content: center;
+	padding: 40px 0px 20px;
+}
+
+table {
+	border-collapse: collapse;
+	width: 1300px;
+	min-width: 300px;
+}
+
+thead {
+	background-color: var(--color-primary-300);
+}
+
+thead>tr>td {
+	padding: 15px;
+	font-weight: bold;
+}
+
+tbody>tr:nth-child(even) {
+	background-color: var(--color-surface-mixed-300);
+}
+
+tbody>tr:nth-child(odd) {
+	background-color: var(--color-surface-mixed-200);
+}
+
+td {
+	border: 2px solid var(--color-surface-mixed-400);
+	text-align: center;
+	padding: 8px 15px;
+}
+
+#row-count-container {
+	display: none;
+	justify-content: center;
+	padding-bottom: 40px;
+}
+
+#row-count {
+	background-color: var(--color-surface-mixed-400);
+	padding: 10px 20px;
+	border-radius: 15px;
+}
