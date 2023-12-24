@@ -5,7 +5,7 @@ function copy(text) {
 		},
 		function (err) {
 			console.error("Could not copy text: ", err);
-		}
+		},
 	);
 }
 
@@ -32,21 +32,48 @@ function findMostFrequent(freqMap) {
 }
 
 function toTitleCase(str) {
-	return str.replace(/\w\S*/g, function (txt) {
+	return str.replace(/\w\S*/g, (txt) => {
 		return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
 	});
 }
 
 function parseConf(conf) {
 	// A future-proof way to extract the conf ('100064706' -> 64706)
-	const confInt = parseInt(conf.replace(/\D/g, ''));
+	const confInt = parseInt(conf.replace(/\D/g, ""));
 	return confInt > 10 ** 8 ? confInt - 10 ** 8 : confInt;
 }
 
 function parseName(name) {
-	// Keep only alpha chars and space (\s)
-	const result = name.replace(/[^a-zA-Z\s]/g, "");
-	return toTitleCase(result)
+	name = name
+		.replace(/[^a-zA-Z\s]/g, "") // keep only alpha and space
+		.replaceAll("  ", '');
+	return toTitleCase(name);
+}
+
+function parseDate(dateStr) {
+	for (const candidate of [dateStr, `${dateStr} 2023`]) {
+		// Keep only alphanumeric, space, '.' or '/'
+		const parsedDate = Date.parse(candidate.replace(/[^a-zA-Z0-9 ./]/g, ""));
+		if (!isNaN(parsedDate)) {
+			return parsedDate;
+		}
+	}
+
+	return -1;
+}
+
+function parseUploadPeriod(uploadPeriod) {
+	uploadPeriod = uploadPeriod.toLowerCase().replace(/[^a-z]/g, "");
+	if (["before", "during"].includes(uploadPeriod)) {
+		return uploadPeriod;
+	}
+	return ""
+}
+
+function parseSource(source) {
+	source = source.toLowerCase().replace(/[^a-z ]/g, "").replaceAll("  ", '')
+	if (source === "" || source !== "spotchecker") source = "CES App";
+	return source;
 }
 
 function parseJobs(input) {
@@ -115,24 +142,23 @@ function mapJobsSheet(rows) {
 		if (cols[1] === "" || cols.length < 8) return;
 
 		let [date, conf, _vendor, wname, uploadPeriod, source, comment] = cols;
-		conf = parseConf(conf);
 
-		if (!isNaN(Date.parse(date))) {
-			// Note: if dateToCount[date] is undefined it will be replaced by 0
+		date = parseDate(date);
+		if (date !== -1) {
+			date = fmtDate(new Date(date));
 			dateToCount[date] = (dateToCount[date] ?? 0) + 1;
 		}
-		if (source === "") {
-			source = "CES App";
-		}
 
-		uploadPeriod = uploadPeriod.toLowerCase();
-		if (!(["before", "during"].includes(uploadPeriod))) {
-			uploadPeriod = "";
-		}
+		conf = parseConf(conf);
+		wname = parseName(wname);
+		uploadPeriod = parseUploadPeriod(uploadPeriod);
+		source = parseSource(source);
+
+		comment.replaceAll("  ", '');
 
 		result[conf] = {
 			...(result[conf] || {}),
-			[parseName(wname)]: [uploadPeriod, source, comment],
+			[wname]: [uploadPeriod, source, comment],
 		};
 	});
 
