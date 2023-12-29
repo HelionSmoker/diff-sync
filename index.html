@@ -14,10 +14,12 @@
         <textarea id="textarea-left" placeholder="Input the system jobs"></textarea>
         <textarea id="textarea-right" placeholder="Input the spreadsheet jobs"></textarea>
     </div>
+
     <div id="buttons-container">
         <button class="action-button" onclick="processInput()">Sync</button>
-        <button class="action-button" onclick="copyRows()">Copy</button>
+        <button class="action-button" onclick="copyRows(this)">Copy</button>
     </div>
+    
     <div id="table-container">
         <table>
             <thead>
@@ -35,11 +37,12 @@
             <tbody></tbody>
         </table>
     </div>
+    
     <div id="row-count-container">
         <div id="row-count"></div>
     </div>
 
-    <script src="sync.js"></script>
+    <script src="main.js"></script>
 </body>
 
 </html>

@@ -37,7 +37,7 @@ body {
 textarea {
 	width: 600px;
 	min-width: 100px;
-	height: 75vh;
+	height: min(1200px, 70vh);
 	margin: 20px 30px;
 	padding: 20px;
 	border-radius: 15px;
