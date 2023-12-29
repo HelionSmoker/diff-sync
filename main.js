@@ -38,15 +38,16 @@ function toTitleCase(str) {
 }
 
 function parseConf(conf) {
-	// A future-proof way to extract the conf ('100064706' -> 64706)
-	const confInt = parseInt(conf.replace(/\D/g, ""));
+	const confInt = parseInt(conf.replace(/\D/g, "")); // Keep only the digits
+	// Handle both formats: '100064706' and '64706' -> 64706
 	return confInt > 10 ** 8 ? confInt - 10 ** 8 : confInt;
 }
 
 function parseName(name) {
 	name = name
-		.replace(/[^a-zA-Z\s]/g, "") // keep only alpha and space
-		.replaceAll("  ", '');
+		.replace(/[^a-zA-Z\s]/g, "") // Keep only alpha and space
+		.replace(/ +/g, ' ') // Remove multiple consecutive spaces
+	
 	return toTitleCase(name);
 }
 
@@ -63,49 +64,79 @@ function parseDate(dateStr) {
 }
 
 function parseUploadPeriod(uploadPeriod) {
-	uploadPeriod = uploadPeriod.toLowerCase().replace(/[^a-z]/g, "");
+	uploadPeriod = uploadPeriod.toLowerCase().replace(/[^a-z]/g, ""); // Keep only numeric
+	
 	if (["before", "during"].includes(uploadPeriod)) {
 		return uploadPeriod;
 	}
-	return ""
+
+	return "";
 }
 
 function parseSource(source) {
-	source = source.toLowerCase().replace(/[^a-z ]/g, "").replaceAll("  ", '')
-	if (source === "" || source !== "spotchecker") source = "CES App";
-	return source;
+	source = source
+		.toLowerCase()
+		.replace(/[^a-z]/g, ""); // Keep only numeric
+	
+	if (source === "spotchecker") return "SpotChecker";
+
+	return "CES App";
 }
 
 function parseJobs(input) {
-	// When the cell contains a new line char, Sheets will wrap the cell in double quotes
-	// Sheets also uses a double quote to escape another double quote.
-	input = input.replaceAll(`""`, "");
+	// When the cell contains a newline char, Google Sheets will wrap the cell in double
+	// quotes. Sheets also uses double quotes to escape the original double quotes.
 
-	let result = [];
-	let rowValues = [];
-	let cellValue = "";
-	let isEscaped = false;
-
+	let parsedRows = [];
+	let currentRow = [];
+	let currentCell = "";
+	let previousChar = "";
+	let inQuotes = false;
+	
 	for (var char of input) {
-		if (char === '"') {
-			isEscaped = !isEscaped;
-		} else if ((char === "\t" || char === "\n") && !isEscaped) {
-			rowValues.push(cellValue.trim());
-			cellValue = "";
-			if (char === "\n") {
-				result.push(rowValues);
-				rowValues = [];
-			}
-		} else if (char !== "\n") {
-			cellValue += char;
+		if (char === '"' && currentCell.length === 0) {
+			inQuotes = true;
 		}
+		
+		if (char === '\t' || char === '\n') {
+			if (previousChar === '"') inQuotes = false;
+
+			if (!inQuotes) {
+				currentRow.push(currentCell);
+				currentCell = "";
+			}
+
+			if (char === "\n") {
+				if (inQuotes) {
+					currentCell += " "
+				} else {
+					parsedRows.push(currentRow);
+					currentRow = [];
+				}
+			}
+		} else {
+			currentCell += char;
+		}
+
+		previousChar = char;
 	}
 
 	// Add remaining values after the loop
-	if (cellValue) rowValues.push(cellValue);
-	if (rowValues.length > 0) result.push(rowValues);
+	if (currentCell.length > 0) currentRow.push(currentCell);
+	if (currentRow.length > 0) parsedRows.push(currentRow);
 
-	return result;
+	return parsedRows.map((row) => {
+		return row.map(cell => {
+			// Replace with something that can never appear in the original
+			let fmtCell = cell.replaceAll('""', "\t");
+			
+			if (fmtCell.startsWith('"') && fmtCell.indexOf('"', 1) === fmtCell.length - 1) {
+				fmtCell = fmtCell.replaceAll('"', "").replaceAll('\t', '"').replaceAll('\n', " ");
+			}
+			
+			return fmtCell.trim()
+		})
+	});
 }
 
 function mapJobsSystem(rows) {
@@ -118,10 +149,11 @@ function mapJobsSystem(rows) {
 		let [conf, vendor, wname, start] = cols;
 		conf = parseConf(conf);
 
-		// Track non-assigned jobs. We modify the wname to have a unique entry in the hashmap.
-		// Duplicate entries in the Sheet will simply be ignored because a System counterpart
+		// Track non-assigned jobs. Since they are empty be default, we want to modify the wname
+		// so that we have a unique entry in the hashmap. This also removes duplicate NON-EMPTY
+		// entries from the system and ALL duplicates from the SHEET, since a SYSTEM counterpart
 		// will not be found.
-		while (conf in result && wname in result[conf]) {
+		while (wname.trim() === "" && conf in result && wname in result[conf]) {
 			wname += " ";
 		}
 
@@ -130,6 +162,7 @@ function mapJobsSystem(rows) {
 			[parseName(wname)]: [vendor, start],
 		};
 	});
+
 	return result;
 }
 
@@ -154,7 +187,7 @@ function mapJobsSheet(rows) {
 		uploadPeriod = parseUploadPeriod(uploadPeriod);
 		source = parseSource(source);
 
-		comment.replaceAll("  ", '');
+		comment.replaceAll("  ", "");
 
 		result[conf] = {
 			...(result[conf] || {}),
@@ -197,36 +230,61 @@ function combine(system, sheet, systemRowCount, sheetRowCount) {
 	const systemMaskLength = calcMaskLength(systemRowCount) - 2;
 	const sheetMaskLength = calcMaskLength(sheetRowCount) - 2;
 
-	result = [
-		...result,
-		...Array(systemMaskLength - result.length).fill([date, "", "", "", "", "CES App", "", ""]),
-	];
+	result = result.concat(
+		Array(systemMaskLength - result.length).fill([date, "", "", "", "", "CES App", "", ""]),
+	);
 
 	// Create an anchor point in Sheets so deleting these rows is easier
 	if (sheetMaskLength > systemMaskLength) {
-		result = [
-			...result,
-			...Array(sheetMaskLength - result.length).fill(["", "", "", "", "", "", "", ""]),
-		];
+		result = result.concat(
+			Array(sheetMaskLength - result.length).fill(["", "", "", "", "", "", "", ""]),
+		);
 	}
 
 	return result;
 }
 
-function clearTableBody(tbody) {
-	while (tbody.firstChild) {
-		tbody.removeChild(tbody.firstChild);
+function adjustTBodySize(tbody, targetSize) {
+	const tableRows = tbody.children;
+	const sizeDiff = targetSize - tableRows.length;
+
+	if (sizeDiff < 0) {
+		removeTableRows(tbody, Math.abs(sizeDiff), tableRows);
+	} else if (sizeDiff > 0) {
+		addTableRows(tbody, sizeDiff);
 	}
 }
 
-function addTableBody(array, tbody) {
-	array.forEach((row) => {
-		// Note: row[0] is the date, which is typically never empty
-		if (row[1] === "") return;
-		const rowNode = tbody.insertRow();
-		row.forEach((cell) => {
-			const cellNode = rowNode.insertCell();
-			cellNode.textContent = cell;
+function addTableRows(tbody, rowCount, cellCount = 8) {
+	const fragment = document.createDocumentFragment();
+
+	for (let i = 0; i < rowCount; i++) {
+		const rowNode = document.createElement("tr");
+
+		for (let j = 0; j < cellCount; j++) {
+			const cellNode = document.createElement("td");
+			rowNode.appendChild(cellNode);
+		}
+
+		fragment.appendChild(rowNode);
+	}
+
+	tbody.appendChild(fragment);
+}
+
+function removeTableRows(tbody, rowCount, tableRows) {
+	for (let i = 0; i < rowCount; i++) {
+		tbody.removeChild(tableRows[i]);
+	}
+}
+
+function populateTBody(tbody, array) {
+	const tableRows = Array.from(tbody.children);
+
+	tableRows.forEach((rowNode, i) => {
+		const cells = Array.from(rowNode.children);
+		cells.forEach((cellNode, j) => {
+			cellNode.textContent = array[i][j];
 		});
 	});
 }
@@ -236,13 +294,13 @@ function countRows(obj) {
 }
 
 function showSuccessState(button, oldContent) {
-	button.textContent = "Success!";
+	button.classList.toggle("highlight")
 	setTimeout(() => {
-		button.innerText = oldContent;
+		button.classList.toggle("highlight")
 	}, 1000);
 }
 
-globalRows = [];
+let globalRows = [];
 
 function processInput() {
 	// Note: .textContent will return an empty string
@@ -252,16 +310,18 @@ function processInput() {
 
 	const systemJobs = mapJobsSystem(parseJobs(leftArea));
 	const systemRowCount = countRows(systemJobs);
+
+	if (systemRowCount <= 0) return;
+
 	const sheetRows = parseJobs(rightArea);
 	const sheetJobs = mapJobsSheet(sheetRows);
 
-	const tableBody = document.body.getElementsByTagName("tbody")[0];
-	// Remove previous rows before adding another new ones
-	clearTableBody(tableBody);
+	const tbody = document.body.getElementsByTagName("tbody")[0];
+	adjustTBodySize(tbody, systemRowCount);
 
 	const combinedJobs = combine(systemJobs, sheetJobs, systemRowCount, sheetRows.length);
 	const combinedJobsSorted = sortArrayWithTime(combinedJobs, 7);
-	addTableBody(combinedJobsSorted, tableBody);
+	populateTBody(tbody, combinedJobsSorted);
 
 	const tableContainer = document.getElementById("table-container");
 	tableContainer.style.display = "flex";
@@ -274,12 +334,9 @@ function processInput() {
 	globalRows = combinedJobsSorted;
 }
 
-function copyRows() {
-	const copyButton = document.getElementById("buttons-container").children[1];
-	if (globalRows.length === 0) {
-		processInput();
-	}
+function copyRows(button) {
+	if (globalRows.length === 0) return;
 
 	copy(globalRows.map((row) => row.join("\t")).join("\n"));
-	showSuccessState(copyButton, "Copy");
+	showSuccessState(button, "Copy");
 }
