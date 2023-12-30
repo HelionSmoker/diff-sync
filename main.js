@@ -9,7 +9,7 @@ function copy(text) {
 	);
 }
 
-function sortArrayWithTime(arr, pos) {
+export function sortArrayWithTime(arr, pos) {
 	// Note: .slice() to create a new array
 	const upperBound = new Date("9999-01-01");
 	return arr.slice().sort((a, b) => {
@@ -19,39 +19,41 @@ function sortArrayWithTime(arr, pos) {
 	});
 }
 
-function fmtDate(dateObj) {
+export function fmtDate(dateObj) {
 	return dateObj.toLocaleDateString("en-US", {
 		month: "2-digit",
 		day: "2-digit",
 	});
 }
 
-function findMostFrequent(freqMap) {
+export function findMostFrequent(freqMap) {
 	const sortedEntries = Object.entries(freqMap).sort((a, b) => b[1] - a[1]);
 	return sortedEntries.length > 0 ? sortedEntries[0][0] : undefined;
 }
 
-function toTitleCase(str) {
+export function toTitleCase(str) {
 	return str.replace(/\w\S*/g, (txt) => {
 		return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
 	});
 }
 
-function parseConf(conf) {
-	const confInt = parseInt(conf.replace(/\D/g, "")); // Keep only the digits
+export function parseConf(conf) {
+	let confInt = parseInt(conf.replace(/\D/g, "")); // Keep only the digits
+	confInt = isNaN(confInt) ? 0 : confInt;
+
 	// Handle both formats: '100064706' and '64706' -> 64706
 	return confInt > 10 ** 8 ? confInt - 10 ** 8 : confInt;
 }
 
-function parseName(name) {
+export function parseName(name) {
 	name = name
 		.replace(/[^a-zA-Z\s]/g, "") // Keep only alpha and space
+		.trim()
 		.replace(/ +/g, " "); // Remove multiple consecutive spaces
-
 	return toTitleCase(name);
 }
 
-function parseDate(dateStr) {
+export function parseDate(dateStr) {
 	for (const candidate of [dateStr, `${dateStr} 2023`]) {
 		// Keep only alphanumeric, space, '.' or '/'
 		const parsedDate = Date.parse(candidate.replace(/[^a-zA-Z0-9 ./]/g, ""));
@@ -63,7 +65,7 @@ function parseDate(dateStr) {
 	return -1;
 }
 
-function parseUploadPeriod(uploadPeriod) {
+export function parseUploadPeriod(uploadPeriod) {
 	uploadPeriod = uploadPeriod.toLowerCase().replace(/[^a-z]/g, ""); // Keep only alpha
 
 	if (["before", "during"].includes(uploadPeriod)) {
@@ -73,7 +75,7 @@ function parseUploadPeriod(uploadPeriod) {
 	return "";
 }
 
-function parseSource(source) {
+export function parseSource(source) {
 	source = source.toLowerCase().replace(/[^a-z]/g, ""); // Keep only alpha
 
 	if (source === "spotchecker") return "SpotChecker";
@@ -81,43 +83,57 @@ function parseSource(source) {
 	return "CES App";
 }
 
-export function parseTable(input) {
-	// When the cell contains a newline char, Google Sheets will wrap the cell in double
-	// quotes. Sheets also uses double quotes to escape the original double quotes.
+export function parseTable(tableStr, rowSize) {
+	/*
+	Google Sheets will apply these formatting rules when copying a table:
+	1. Separate the table cells with a tab char
+	2. Separate the table rows with a newline char
+	3.1 If the cell contains a newline char or tab, wrap the entire cell in double quotes
+		('text1\ntext2' -> '"text1\ntext2"')
+	3.2 If there are quotes in the original cell, escape those quotes with other quotes 
+		('"text"' -> '""text""')
+	*/
 
-	if (input.length === 0) return [[""]];
+	if (tableStr.length === 0) return [[""]];
 
 	// We need a final newline char to push the last line
-	if (!input.endsWith('\n')) input += '\n'
+	if (!tableStr.endsWith("\n")) tableStr += "\n";
 
 	let parsedTable = [];
 	let currentRow = [];
 	let currentCell = "";
-	let prevCharIsQuotes = false;
+	let prevChar = false;
 	let inQuotes = false;
 
-	for (var char of input) {
+	for (var char of tableStr) {
 		if (char === '"' && currentCell === "") {
 			inQuotes = true;
 		}
 
 		if (char !== "\t" && char !== "\n") {
 			currentCell += char;
-			prevCharIsQuotes = char === '"';
+			prevChar = char;
 			continue;
 		}
-		
-		if (prevCharIsQuotes) inQuotes = false;
+
+		if (char === "\t" || (currentCell.slice(-1) === '"' && currentCell.slice(-2) !== '""'))
+			inQuotes = false;
 
 		if (inQuotes) {
 			currentCell += char;
-
-			if (char === '\n') continue
+			continue;
 		}
 
-		currentRow = currentRow.concat(formatCell(currentCell));
-		currentCell = "";
-		
+		if (
+			currentCell.includes("\n") &&
+			(!currentCell.startsWith('"') || !currentCell.endsWith('"'))
+		) {
+			currentRow.concat(currentCell.split("\n").map((cell) => formatCell(cell)));
+		} else {
+			currentRow.push(formatCell(currentCell));
+			currentCell = "";
+		}
+
 		if (char === "\n") {
 			parsedTable.push(currentRow);
 			currentRow = [];
@@ -125,26 +141,43 @@ export function parseTable(input) {
 	}
 
 	// Add remaining values after the loop
-	if (currentCell.length > 0) currentRow = currentRow.concat(formatCell(currentCell));
+	let finalCells = [];
+	if (currentCell.length > 0) {
+		if (currentCell.includes("\n")) {
+			finalCells = currentCell
+				.trim()
+				.split("\n")
+				.map((cell) => formatCell(cell));
+
+			if (finalCells.length > 1) {
+				currentRow = currentRow.concat(finalCells[0]);
+			} else {
+				currentRow = currentRow.concat(finalCells);
+			}
+		} else {
+			currentRow.push(formatCell(currentCell));
+		}
+	}
+
 	if (currentRow.length > 0) parsedTable.push(currentRow);
+	if (finalCells.length > 1) parsedTable.push(finalCells.slice(1));
 
 	return parsedTable;
 }
 
-function formatCell(cell) {
+export function formatCell(cell) {
 	// Remove trailing newlines that might
-	let fmtCell = cell.replaceAll('\t', '').trim();
+	let fmtCell = cell.replaceAll("\t", "").trim();
 
 	// Replace all whitespace with a regular space and escaped quotes with
 	// regular quotes
-	if (fmtCell.startsWith('"') && fmtCell.endsWith('"') && fmtCell.includes('\n')) {
-		return [fmtCell.slice(1, -1).replace(/\s/g, ' ').replaceAll('""', '"').trim()];
-	} else {
-		return fmtCell.split('\n').map(part => part.trim())
+	if (fmtCell.startsWith('"') && fmtCell.endsWith('"') && fmtCell.includes("\n")) {
+		fmtCell = fmtCell.slice(1, -1).replace(/\s/g, " ").replaceAll('""', '"');
 	}
+	return fmtCell.trim();
 }
 
-function mapJobsSystem(rows) {
+export function mapJobsSystem(rows) {
 	let result = {};
 
 	rows.forEach((cols) => {
@@ -171,7 +204,7 @@ function mapJobsSystem(rows) {
 	return result;
 }
 
-function mapJobsSheet(rows) {
+export function mapJobsSheet(rows) {
 	let result = {};
 	let dateToCount = {};
 
@@ -206,11 +239,11 @@ function mapJobsSheet(rows) {
 	return result;
 }
 
-function calcMaskLength(rowCount) {
+export function calcMaskLength(rowCount) {
 	return rowCount < 248 ? 250 : (Math.ceil(rowCount / 10) + 1) * 10;
 }
 
-function combine(system, sheet, systemRowCount, sheetRowCount) {
+export function combine(system, sheet, systemRowCount, sheetRowCount) {
 	let result = [];
 	let date = sheet["globalDate"];
 
@@ -294,7 +327,7 @@ function populateTBody(tbody, array) {
 	});
 }
 
-function countRows(obj) {
+export function countRows(obj) {
 	return Object.values(obj).reduce((acc, value) => acc + Object.keys(value).length, 0);
 }
 
