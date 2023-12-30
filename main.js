@@ -46,8 +46,8 @@ function parseConf(conf) {
 function parseName(name) {
 	name = name
 		.replace(/[^a-zA-Z\s]/g, "") // Keep only alpha and space
-		.replace(/ +/g, ' ') // Remove multiple consecutive spaces
-	
+		.replace(/ +/g, " "); // Remove multiple consecutive spaces
+
 	return toTitleCase(name);
 }
 
@@ -64,8 +64,8 @@ function parseDate(dateStr) {
 }
 
 function parseUploadPeriod(uploadPeriod) {
-	uploadPeriod = uploadPeriod.toLowerCase().replace(/[^a-z]/g, ""); // Keep only numeric
-	
+	uploadPeriod = uploadPeriod.toLowerCase().replace(/[^a-z]/g, ""); // Keep only alpha
+
 	if (["before", "during"].includes(uploadPeriod)) {
 		return uploadPeriod;
 	}
@@ -74,69 +74,74 @@ function parseUploadPeriod(uploadPeriod) {
 }
 
 function parseSource(source) {
-	source = source
-		.toLowerCase()
-		.replace(/[^a-z]/g, ""); // Keep only numeric
-	
+	source = source.toLowerCase().replace(/[^a-z]/g, ""); // Keep only alpha
+
 	if (source === "spotchecker") return "SpotChecker";
 
 	return "CES App";
 }
 
-function parseJobs(input) {
+export function parseTable(input) {
 	// When the cell contains a newline char, Google Sheets will wrap the cell in double
 	// quotes. Sheets also uses double quotes to escape the original double quotes.
 
-	let parsedRows = [];
+	if (input.length === 0) return [[""]];
+
+	// We need a final newline char to push the last line
+	if (!input.endsWith('\n')) input += '\n'
+
+	let parsedTable = [];
 	let currentRow = [];
 	let currentCell = "";
-	let previousChar = "";
+	let prevCharIsQuotes = false;
 	let inQuotes = false;
-	
+
 	for (var char of input) {
-		if (char === '"' && currentCell.length === 0) {
+		if (char === '"' && currentCell === "") {
 			inQuotes = true;
 		}
-		
-		if (char === '\t' || char === '\n') {
-			if (previousChar === '"') inQuotes = false;
 
-			if (!inQuotes) {
-				currentRow.push(currentCell);
-				currentCell = "";
-			}
-
-			if (char === "\n") {
-				if (inQuotes) {
-					currentCell += " "
-				} else {
-					parsedRows.push(currentRow);
-					currentRow = [];
-				}
-			}
-		} else {
+		if (char !== "\t" && char !== "\n") {
 			currentCell += char;
+			prevCharIsQuotes = char === '"';
+			continue;
+		}
+		
+		if (prevCharIsQuotes) inQuotes = false;
+
+		if (inQuotes) {
+			currentCell += char;
+
+			if (char === '\n') continue
 		}
 
-		previousChar = char;
+		currentRow = currentRow.concat(formatCell(currentCell));
+		currentCell = "";
+		
+		if (char === "\n") {
+			parsedTable.push(currentRow);
+			currentRow = [];
+		}
 	}
 
 	// Add remaining values after the loop
-	if (currentCell.length > 0) currentRow.push(currentCell);
-	if (currentRow.length > 0) parsedRows.push(currentRow);
+	if (currentCell.length > 0) currentRow = currentRow.concat(formatCell(currentCell));
+	if (currentRow.length > 0) parsedTable.push(currentRow);
 
-	return parsedRows.map((row) => {
-		return row.map(cell => {
-			// Replace with something that can never appear in the original
-			let fmtCell = cell.replaceAll('""', "\t");
-			
-			if (fmtCell.startsWith('"') && fmtCell.indexOf('"', 1) === fmtCell.length - 1) {
-				fmtCell = fmtCell.replaceAll('"', "").replaceAll('\t', '"').replaceAll('\n', " ");
-			}
-			
-			return fmtCell.trim()
-		})
-	});
+	return parsedTable;
+}
+
+function formatCell(cell) {
+	// Remove trailing newlines that might
+	let fmtCell = cell.replaceAll('\t', '').trim();
+
+	// Replace all whitespace with a regular space and escaped quotes with
+	// regular quotes
+	if (fmtCell.startsWith('"') && fmtCell.endsWith('"') && fmtCell.includes('\n')) {
+		return [fmtCell.slice(1, -1).replace(/\s/g, ' ').replaceAll('""', '"').trim()];
+	} else {
+		return fmtCell.split('\n').map(part => part.trim())
+	}
 }
 
 function mapJobsSystem(rows) {
@@ -146,20 +151,20 @@ function mapJobsSystem(rows) {
 		// Disregard empty rows
 		if (cols[0] === "" || cols.length < 4) return;
 
-		let [conf, vendor, wname, start] = cols;
+		let [conf, vendor, workerName, start] = cols;
 		conf = parseConf(conf);
 
-		// Track non-assigned jobs. Since they are empty be default, we want to modify the wname
-		// so that we have a unique entry in the hashmap. This also removes duplicate NON-EMPTY
-		// entries from the system and ALL duplicates from the SHEET, since a SYSTEM counterpart
-		// will not be found.
-		while (wname.trim() === "" && conf in result && wname in result[conf]) {
-			wname += " ";
+		// Track non-assigned jobs. Since they are empty be default, we want to modify the
+		// workerName so that we have a unique entry in the hashmap. This also removes duplicate
+		// NON-EMPTY entries from the system and ALL duplicates from the SHEET, since a SYSTEM
+		// counterpart will not be found.
+		while (workerName.trim() === "" && conf in result && workerName in result[conf]) {
+			workerName += " ";
 		}
 
 		result[conf] = {
 			...(result[conf] || {}),
-			[parseName(wname)]: [vendor, start],
+			[parseName(workerName)]: [vendor, start],
 		};
 	});
 
@@ -174,7 +179,7 @@ function mapJobsSheet(rows) {
 		// Disregard empty rows
 		if (cols[1] === "" || cols.length < 8) return;
 
-		let [date, conf, _vendor, wname, uploadPeriod, source, comment] = cols;
+		let [date, conf, _vendor, workerName, uploadPeriod, source, comment] = cols;
 
 		date = parseDate(date);
 		if (date !== -1) {
@@ -183,7 +188,7 @@ function mapJobsSheet(rows) {
 		}
 
 		conf = parseConf(conf);
-		wname = parseName(wname);
+		workerName = parseName(workerName);
 		uploadPeriod = parseUploadPeriod(uploadPeriod);
 		source = parseSource(source);
 
@@ -191,7 +196,7 @@ function mapJobsSheet(rows) {
 
 		result[conf] = {
 			...(result[conf] || {}),
-			[wname]: [uploadPeriod, source, comment],
+			[workerName]: [uploadPeriod, source, comment],
 		};
 	});
 
@@ -210,18 +215,18 @@ function combine(system, sheet, systemRowCount, sheetRowCount) {
 	let date = sheet["globalDate"];
 
 	for (let conf in system) {
-		for (let wname in system[conf]) {
+		for (let workerName in system[conf]) {
 			let manualValues = ["", "CES App", ""];
-			if (conf in sheet && wname in sheet[conf]) {
-				manualValues = sheet[conf][wname];
+			if (conf in sheet && workerName in sheet[conf]) {
+				manualValues = sheet[conf][workerName];
 			}
 			result.push([
 				date,
 				conf,
-				system[conf][wname][0],
-				wname,
+				system[conf][workerName][0],
+				workerName,
 				...manualValues,
-				system[conf][wname][1],
+				system[conf][workerName][1],
 			]);
 		}
 	}
@@ -294,9 +299,9 @@ function countRows(obj) {
 }
 
 function showSuccessState(button, oldContent) {
-	button.classList.toggle("highlight")
+	button.classList.toggle("highlight");
 	setTimeout(() => {
-		button.classList.toggle("highlight")
+		button.classList.toggle("highlight");
 	}, 1000);
 }
 
@@ -308,12 +313,13 @@ function processInput() {
 		(node) => node.value.trim(),
 	);
 
-	const systemJobs = mapJobsSystem(parseJobs(leftArea));
+	const systemJobs = mapJobsSystem(parseTable(leftArea));
 	const systemRowCount = countRows(systemJobs);
 
 	if (systemRowCount <= 0) return;
 
-	const sheetRows = parseJobs(rightArea);
+	// Don't map the jobs directly since we care about the duplicate count, empty count etc.
+	const sheetRows = parseTable(rightArea);
 	const sheetJobs = mapJobsSheet(sheetRows);
 
 	const tbody = document.body.getElementsByTagName("tbody")[0];
@@ -339,4 +345,10 @@ function copyRows(button) {
 
 	copy(globalRows.map((row) => row.join("\t")).join("\n"));
 	showSuccessState(button, "Copy");
+}
+
+// Check if window is defined (i.e., running in a browser environment)
+if (typeof window !== "undefined") {
+	window.processInput = processInput;
+	window.copyRows = copyRows;
 }
