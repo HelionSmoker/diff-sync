@@ -1,7 +1,9 @@
 {
+	"name": "sync-system",
 	"type": "module",
+	"version": "1.0.0",
 	"scripts": {
-		"test": "mocha"
+		"test": "mocha tests/*.js"
 	},
 	"devDependencies": {
 		"chai": "^1.10.0",
