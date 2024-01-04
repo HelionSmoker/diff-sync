@@ -369,7 +369,7 @@ function toggleClass(button, nodeClass) {
 
 let globalRows = [];
 
-function processInput() {
+function processInput(button) {
 	// Note: .textContent will return an empty string
 	const [leftArea, rightArea] = [...document.getElementById("textarea-container").children].map(
 		(node) => node.value.trim(),
@@ -398,7 +398,7 @@ function processInput() {
 
 	const rowCountContainer = document.getElementById("row-count-container");
 	const rowCountNode = rowCountContainer.firstElementChild;
-	rowCountNode.textContent = `Row count: ${systemRowCount}`;
+	rowCountNode.textContent = `Row Count: ${systemRowCount}`;
 	rowCountContainer.style.display = "flex";
 
 	globalRows = combinedJobsSorted;
