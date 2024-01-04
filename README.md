@@ -1,4 +1,4 @@
-# sync-system
+# diff-sync
 The project helps operators in syncing job data between the dispatch system and Google Sheets, ensuring accurate alignment between them. It enables updates without losing data, preserving the work of other agents. Additionally, the tool enhances report data quality through formatting changes, all achieved with efficiency and consistency.
 
 ## Step-by-Step Guide
