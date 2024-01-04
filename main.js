@@ -331,10 +331,10 @@ export function countRows(obj) {
 	return Object.values(obj).reduce((acc, value) => acc + Object.keys(value).length, 0);
 }
 
-function showSuccessState(button, oldContent) {
-	button.classList.toggle("highlight");
+function toggleClass(button, nodeClass) {
+	button.classList.toggle(nodeClass);
 	setTimeout(() => {
-		button.classList.toggle("highlight");
+		button.classList.toggle(nodeClass);
 	}, 1000);
 }
 
@@ -349,8 +349,10 @@ function processInput() {
 	const systemJobs = mapJobsSystem(parseTable(leftArea));
 	const systemRowCount = countRows(systemJobs);
 
-	if (systemRowCount <= 0) return;
-
+	if (systemRowCount <= 0) {
+		toggleClass(button, "failure");
+		return;
+	}
 	// Don't map the jobs directly since we care about the duplicate count, empty count etc.
 	const sheetRows = parseTable(rightArea);
 	const sheetJobs = mapJobsSheet(sheetRows);
@@ -371,13 +373,18 @@ function processInput() {
 	rowCountContainer.style.display = "flex";
 
 	globalRows = combinedJobsSorted;
+
+	toggleClass(button, "success");
 }
 
 function copyRows(button) {
-	if (globalRows.length === 0) return;
+	if (globalRows.length === 0) {
+		toggleClass(button, "failure");
+		return;
+	}
 
 	copy(globalRows.map((row) => row.join("\t")).join("\n"));
-	showSuccessState(button, "Copy");
+	toggleClass(button, "success");
 }
 
 // Check if window is defined (i.e., running in a browser environment)
