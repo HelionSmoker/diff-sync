@@ -30,6 +30,7 @@
 
 body {
 	background-color: var(--color-surface-mixed-100);
+	font-family: 'Times New Roman', Times, serif;
 	
 	/* Needed for footer to hug the bottom of the screen */
 	min-height: 100vh;
