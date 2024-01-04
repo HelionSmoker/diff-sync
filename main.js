@@ -54,15 +54,44 @@ export function parseName(name) {
 }
 
 export function parseDate(dateStr) {
-	for (const candidate of [dateStr, `${dateStr} 2023`]) {
-		// Keep only alphanumeric, space, '.' or '/'
-		const parsedDate = Date.parse(candidate.replace(/[^a-zA-Z0-9 ./]/g, ""));
-		if (!isNaN(parsedDate)) {
-			return parsedDate;
+	if (dateStr === "") return undefined;
+
+	const currentDate = new Date(); // For current year
+	const formattedDate = dateStr.replace(/[^a-zA-Z0-9 ./]/g, ""); // Keep only alphanumeric, space, '.' or '/'.
+	const parts = formattedDate.split(/[\/\s-.]/).filter((part) => part !== ""); // Split on spaces, slashes, hyphens or periods
+	let userProvidedDate;
+
+	try {
+		switch (parts.length) {
+			case 1:
+				// Assume the user entered only the day
+				userProvidedDate = new Date(
+					`${currentDate.getMonth()} ${parts[0]} ${currentDate.getFullYear()}`,
+				);
+				break;
+			case 2:
+				// Assume the user entered only the month and day
+				userProvidedDate = new Date(`${parts.join(" ")} ${currentDate.getFullYear()}`);
+				break;
+
+			case 3:
+				// Assume the user entered the full date
+				userProvidedDate = new Date(formattedDate);
+				break;
+			default:
+				throw new Error(`Invalid date format: ${dateStr}`);
 		}
+
+		if (!isNaN(userProvidedDate)) {
+			return userProvidedDate;
+		} else {
+			throw new Error(`Invalid date format: ${dateStr}`);
+		}
+	} catch (error) {
+		console.error("Error parsing date:", error.message);
 	}
 
-	return -1;
+	return undefined;
 }
 
 export function parseUploadPeriod(uploadPeriod) {
@@ -215,8 +244,8 @@ export function mapJobsSheet(rows) {
 		let [date, conf, _vendor, workerName, uploadPeriod, source, comment] = cols;
 
 		date = parseDate(date);
-		if (date !== -1) {
-			date = fmtDate(new Date(date));
+		if (date !== undefined) {
+			date = formatDate(date);
 			dateToCount[date] = (dateToCount[date] ?? 0) + 1;
 		}
 
