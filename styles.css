@@ -15,6 +15,9 @@
 	--color-surface-mixed-400: #5e5a66;
 	--color-surface-mixed-500: #76737e;
 	--color-surface-mixed-600: #908d96;
+
+	--success-color: #76B39D;
+	--failure-color: #f0396a;
 }
 
 * {
