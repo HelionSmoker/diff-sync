@@ -19,7 +19,7 @@ export function sortArrayWithTime(arr, pos) {
 	});
 }
 
-export function fmtDate(dateObj) {
+export function formatDate(dateObj) {
 	return dateObj.toLocaleDateString("en-US", {
 		month: "2-digit",
 		day: "2-digit",
@@ -233,7 +233,7 @@ export function mapJobsSheet(rows) {
 		};
 	});
 
-	const mostFreqDate = findMostFrequent(dateToCount) || fmtDate(new Date());
+	const mostFreqDate = findMostFrequent(dateToCount) || formatDate(new Date());
 	result["globalDate"] = mostFreqDate;
 
 	return result;
