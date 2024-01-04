@@ -24,64 +24,104 @@
 	margin: 0;
 	padding: 0;
 	color: white;
+	outline: none;
+	border: none;
 }
 
 body {
 	background-color: var(--color-surface-mixed-100);
 }
 
-#textarea-container {
+.center {
 	display: flex;
-	align-items: center;
+	flex-wrap: wrap;
 	justify-content: center;
-	padding-top: 50px;
+	align-items: center;
+}
+
+#textarea-container {
+	margin: 50px 30px;
+	gap: 30px 50px;
 }
 
 textarea {
-	width: 600px;
-	min-width: 100px;
+	width: min(700px, 40vw);
 	height: min(1200px, 70vh);
-	margin: 20px 30px;
+
 	padding: 20px;
-	border-radius: 15px;
 	resize: none;
-	outline: none;
+	opacity: 0.8;
 	background-color: var(--color-surface-mixed-200);
+
+	border: 2px solid var(--color-surface-mixed-300);
+	border-radius: 10px;
+}
+
+@media screen and (max-width: 1000px) {
+	textarea {
+		width: 90vw;
+	}
 }
 
 textarea:focus {
-	box-shadow: 0 0 30px var(--color-surface-mixed-400);
+	box-shadow: 0 0 15px var(--color-surface-mixed-400);
+	opacity: 1.0;
+	transition: opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 #buttons-container {
 	display: flex;
 	justify-content: center;
 	gap: 30px;
+	margin-bottom: 40px;
 }
 
 .action-button {
-	background-color: var(--color-primary-400);
-	color: white;
-	padding: 16px 32px;
-	border: none;
-	border-radius: 50px;
+	display: flex;
 	cursor: pointer;
+	align-items: center;
+
+	background-color: var(--color-primary-400);
+	transition: background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1), color 0.5s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s;
+
+	opacity: 0.9;
+	padding: 16px 32px;
+	gap: 5px;
+
+	border-radius: 50px;
 }
 
 .action-button:hover {
-	background-color: var(--color-primary-500);
+	opacity: 1.0;
+}
+
+.success {
+	background-color: var(--success-color);
+	transition: background-color 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.failure {
+	background-color: var(--failure-color);
+	transition: background-color 0.6s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 #table-container {
 	display: none;
-	justify-content: center;
-	padding: 40px 0px 20px;
+	margin: 40px auto 30px;
+	padding-bottom: 10px;
+	/* For scroll bar */
+	max-width: min(1300px, 90vw);
+	border-radius: 10px;
+	/* Don't use 'justify-content: center' since it will look weird on mobile */
+
+	overflow: auto;
+	transition: max-height 5s ease;
 }
 
 table {
 	border-collapse: collapse;
-	width: 1300px;
-	min-width: 300px;
+	width: 100%;
+	min-width: 1200px;
 }
 
 thead {
@@ -116,5 +156,5 @@ td {
 #row-count {
 	background-color: var(--color-surface-mixed-400);
 	padding: 10px 20px;
-	border-radius: 15px;
+	border-radius: 5px;
 }
