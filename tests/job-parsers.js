@@ -91,6 +91,10 @@ describe("Worker Name Parser", function () {
 	});
 });
 
+function getCurrentYear() {
+	return new Date().getFullYear();
+}
+
 describe("Date parser", function () {
 	it("should return 0 if dateStr is empty", () => {
 		const input = "";
@@ -105,39 +109,39 @@ describe("Date parser", function () {
 
 		assert.deepEqual(parseDate(input), out);
 	});
-	
+
 	it("should correctly parse a short date", () => {
 		const input = "Nov 11";
-		const out = new Date("Nov 11 2023")
-		
+		const out = new Date(`Nov 11 ${getCurrentYear()}`);
+
 		assert.deepEqual(parseDate(input), out);
 	});
 
 	it("should correctly parse a full numerical date", () => {
 		const input = "12/11/2023";
-		const out = new Date("Dec 11 2023")
+		const out = new Date("Dec 11 2023");
 
 		assert.deepEqual(parseDate(input), out);
 	});
 
 	it("should correctly parse a short numerical date", () => {
 		const input = "12/11";
-		const out = new Date("Dec 11 2023")
+		const out = new Date(`Dec 11 ${getCurrentYear()}`);
 
 		assert.deepEqual(parseDate(input), out);
 	});
 
 	it("should ignore special chars", () => {
 		const input = "$##$#$ 12/ $&11/ 20#@$23";
-		const out = new Date("Dec 11 2023")
-		
+		const out = new Date("Dec 11 2023");
+
 		assert.deepEqual(parseDate(input), out);
 	});
 
 	it("should ignore consecutive separators", () => {
 		const input = "  12// - ..11/ 2023-/  ";
-		const out = new Date("Dec 11 2023")
-		
+		const out = new Date("Dec 11 2023");
+
 		assert.deepEqual(parseDate(input), out);
 	});
 });
