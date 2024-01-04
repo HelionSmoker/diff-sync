@@ -6,20 +6,25 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/x-icon" href="favicon.png">
     <link rel="stylesheet" href="styles.css">
+    <script src="https://kit.fontawesome.com/c3dc7cb2c6.js" crossorigin="anonymous"></script>
     <title>Sync Helper</title>
 </head>
 
 <body>
-    <div id="textarea-container">
-        <textarea id="textarea-left" placeholder="Input the system jobs"></textarea>
-        <textarea id="textarea-right" placeholder="Input the spreadsheet jobs"></textarea>
+    <div id="textarea-container" class="center">
+        <textarea id="textarea-left" placeholder="Insert the system jobs"></textarea>
+        <textarea id="textarea-right" placeholder="Insert the spreadsheet jobs"></textarea>
     </div>
 
-    <div id="buttons-container">
-        <button class="action-button" onclick="processInput()">Sync</button>
-        <button class="action-button" onclick="copyRows(this)">Copy</button>
+    <div id="buttons-container" class="center">
+        <button class="action-button" onclick="processInput(this)"><i class="fa-solid fa-rotate"></i>
+            <p>Sync</p>
+        </button>
+        <button id="copy-button" class="action-button" onclick="copyRows(this)"><i class="fa-regular fa-copy"></i>
+            <p>Copy</p>
+        </button>
     </div>
-    
+
     <div id="table-container">
         <table>
             <thead>
@@ -37,7 +42,7 @@
             <tbody></tbody>
         </table>
     </div>
-    
+
     <div id="row-count-container">
         <div id="row-count"></div>
     </div>
