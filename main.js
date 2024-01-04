@@ -416,8 +416,13 @@ function copyRows(button) {
 	toggleClass(button, "success");
 }
 
+function showDemo(button) {
+	console.log(button)
+}
+
 // Check if window is defined (i.e., running in a browser environment)
 if (typeof window !== "undefined") {
 	window.processInput = processInput;
 	window.copyRows = copyRows;
+	window.showDemo = showDemo;
 }

@@ -11,41 +11,57 @@
 </head>
 
 <body>
-    <div id="textarea-container" class="center">
-        <textarea id="textarea-left" placeholder="Insert the system jobs"></textarea>
-        <textarea id="textarea-right" placeholder="Insert the spreadsheet jobs"></textarea>
-    </div>
+    <main>
+        <div id="textarea-container" class="center">
+            <textarea id="textarea-left" placeholder="Insert the system jobs"></textarea>
+            <textarea id="textarea-right" placeholder="Insert the spreadsheet jobs"></textarea>
+        </div>
+    
+        <div id="buttons-container" class="center">
+            <button class="action-button" onclick="processInput(this)">
+                <i class="fa-solid fa-rotate"></i>
+                <p>Sync</p>
+            </button>
+            <button id="copy-button" class="action-button" onclick="copyRows(this)">
+                <i class="fa-regular fa-copy"></i>
+                <p>Copy</p>
+            </button>
+        </div>
+    
+        <div id="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <td>Date</td>
+                        <td>Conf</td>
+                        <td>Vendor</td>
+                        <td>Name</td>
+                        <td>Upload</td>
+                        <td>Source</td>
+                        <td>Comment</td>
+                        <td>Start Time</td>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    
+        <div id="row-count-container">
+            <div id="row-count"></div>
+        </div>
+    </main>
 
-    <div id="buttons-container" class="center">
-        <button class="action-button" onclick="processInput(this)"><i class="fa-solid fa-rotate"></i>
-            <p>Sync</p>
+    <footer class="center">
+        <p><b>Stuck?</b> Try the</p>
+        <button class="demo" onclick="showDemo(this)">
+            <i class="fa-solid fa-gamepad"></i>
+            <p>Demo</p>
         </button>
-        <button id="copy-button" class="action-button" onclick="copyRows(this)"><i class="fa-regular fa-copy"></i>
-            <p>Copy</p>
-        </button>
-    </div>
-
-    <div id="table-container">
-        <table>
-            <thead>
-                <tr>
-                    <td>Date</td>
-                    <td>Conf</td>
-                    <td>Vendor</td>
-                    <td>Name</td>
-                    <td>Upload</td>
-                    <td>Source</td>
-                    <td>Comment</td>
-                    <td>Start Time</td>
-                </tr>
-            </thead>
-            <tbody></tbody>
-        </table>
-    </div>
-
-    <div id="row-count-container">
-        <div id="row-count"></div>
-    </div>
+        <p>or</p>
+        <a href="https://github.com/HelionSmoker/brat-js" target="_blank" class="center logo-container">
+            <img src="github-mark-white.png" alt="GitHub Mark" class="logo">GitHub
+        </a>
+    </footer>
 
     <script type="module" src="main.js"></script>
 </body>
