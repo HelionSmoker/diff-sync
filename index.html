@@ -12,17 +12,19 @@
 
 <body>
     <main>
-        <div id="textarea-container" class="center">
-            <textarea id="textarea-left" placeholder="Insert the system jobs"></textarea>
-            <textarea id="textarea-right" placeholder="Insert the spreadsheet jobs"></textarea>
+        <div class="center">
+            <div class="center input-area">
+                <textarea id="sys-input" placeholder="Insert the system jobs"></textarea>
+                <textarea id="sheet-input" placeholder="Insert the spreadsheet jobs"></textarea>
+            </div>
         </div>
     
-        <div id="buttons-container" class="center">
-            <button class="action-button" onclick="processInput(this)">
+        <div class="center action-area">
+            <button class="center high-importance status-display" onclick="showButtonStatus(this, processInput())">
                 <i class="fa-solid fa-rotate"></i>
                 <p>Sync</p>
             </button>
-            <button id="copy-button" class="action-button" onclick="copyRows(this)">
+            <button class="center high-importance status-display" onclick="showButtonStatus(this, copyRows())">
                 <i class="fa-regular fa-copy"></i>
                 <p>Copy</p>
             </button>
@@ -52,13 +54,13 @@
     </main>
 
     <footer class="center">
-        <p><b>Stuck?</b> Try the</p>
+        <p><b>Stuck?</b> Try</p>
         <button class="center demo status-display" onclick="showButtonStatus(this, showDemo())">
             <i class="fa-solid fa-gamepad"></i>
             <p>Demo</p>
         </button>
         <p>or</p>
-        <a href="https://github.com/HelionSmoker/diff-sync" target="_blank" class="center logo-container">
+        <a href="https://github.com/HelionSmoker/diff-sync" target="_blank" class="center">
             <img src="github-mark-white.png" alt="GitHub Mark" class="logo">GitHub
         </a>
     </footer>
