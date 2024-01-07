@@ -2,6 +2,18 @@ import chai from "chai";
 const { assert } = chai;
 
 import { parseTable } from "../main.js";
+import { DEMO_SYS, DEMO_SHEET, PARSED_DEMO_SYS, PARSED_DEMO_SHEET } from "../demo-data.js";
+
+describe("Demo Parsing Test", () => {
+	it("should parse the system jobs correctly", () => {
+		console.log(parseTable(DEMO_SYS))
+		assert.deepEqual(parseTable(DEMO_SYS), PARSED_DEMO_SYS);
+	});
+
+	it("should parse the sheet jobs correctly", () => {
+		assert.deepEqual(parseTable(DEMO_SHEET), PARSED_DEMO_SHEET);
+	});
+});
 
 describe("Google Sheets Parser Single Line with Regular Text", function () {
 	it("an empty string", () => {
