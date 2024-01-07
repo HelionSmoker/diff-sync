@@ -372,7 +372,7 @@ export const MAPPED_DEMO_SHEET = {
 	},
 };
 
-export const DEMO_GLOBAL_DATE = "12/10"
+export const DEMO_GLOBAL_DATE = "12/10";
 
 export const COMBINED_JOBS = [
 	["12/10", "51230", "Vendor1", "Roderick Corina", "before", "App", "everything good", "1:00am"],

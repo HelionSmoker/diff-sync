@@ -22,3 +22,7 @@ If you're copying a table from Google Sheets and pasting it into the textarea, k
 - Opt for single quotes (`''`) over double quotes (`""`).
 - When using double quotes, make sure to use them in pairs. An odd double quote could mess up the parsing.
 - If you're using double quotes, refrain from placing them at the beginning or end of the cell.
+
+## TODO
+- Bundle up parsing logic in an Object
+- Add more tests for existing parsers

@@ -1,7 +1,29 @@
 import chai from "chai";
 const { assert } = chai;
 
-import { parseConf, parseName, parseDate, parseUploadPeriod, parseSource } from "../main.js";
+import {
+	combineJobs,
+	parseConf,
+	parseName,
+	parseDate,
+	parseUploadPeriod,
+	parseSource,
+} from "../src/jobs.js";
+import {
+	MAPPED_DEMO_SYS,
+	MAPPED_DEMO_SHEET,
+	COMBINED_JOBS,
+	DEMO_GLOBAL_DATE,
+} from "../src/demo-data.js";
+
+describe("Demo Job Combination Test", () => {
+	it("should combine the jobs correctly", () => {
+		assert.deepEqual(
+			combineJobs(MAPPED_DEMO_SYS, MAPPED_DEMO_SHEET, DEMO_GLOBAL_DATE),
+			COMBINED_JOBS,
+		);
+	});
+});
 
 describe("Job Confirmation Parser", function () {
 	it("an empty string", () => {
@@ -143,5 +165,93 @@ describe("Date parser", function () {
 		const out = new Date("Dec 11 2023");
 
 		assert.deepEqual(parseDate(input), out);
+	});
+});
+
+describe("Upload Period Parser", () => {
+	it("an empty string", () => {
+		const input = "";
+		const out = "";
+
+		assert.deepEqual(parseUploadPeriod(input), out);
+	});
+
+	it("should parse 'during' correctly", () => {
+		const input = "during";
+		const out = "during";
+
+		assert.deepEqual(parseUploadPeriod(input), out);
+	});
+
+	it("should parse 'before' correctly", () => {
+		const input = "before";
+		const out = "before";
+
+		assert.deepEqual(parseUploadPeriod(input), out);
+	});
+
+	it("should ignore any unknown period", () => {
+		const input = "after";
+		const out = "";
+
+		assert.deepEqual(parseUploadPeriod(input), out);
+	});
+
+	it("should ignore case", () => {
+		const input = "DurING";
+		const out = "during";
+
+		assert.deepEqual(parseUploadPeriod(input), out);
+	});
+
+	it("should discard anything non-alpha", () => {
+		const input = "#%%   d!@  @$@uri &@ ng";
+		const out = "during";
+
+		assert.deepEqual(parseUploadPeriod(input), out);
+	});
+});
+
+describe("Image Source Parser", () => {
+	it("an empty string", () => {
+		const input = "";
+		const out = "App";
+
+		assert.deepEqual(parseSource(input), out);
+	});
+
+	it("should parse 'App'", () => {
+		const input = "App";
+		const out = "App";
+
+		assert.deepEqual(parseSource(input), out);
+	});
+
+	it("should parse 'Email'", () => {
+		const input = "Email";
+		const out = "Email";
+
+		assert.deepEqual(parseSource(input), out);
+	});
+
+	it("should ignore case", () => {
+		const input = "EmaIl";
+		const out = "Email";
+
+		assert.deepEqual(parseSource(input), out);
+	});
+
+	it("should discard anything non-alpha", () => {
+		const input = "#%%   e!@  @$@mai &@ l ";
+		const out = "Email";
+
+		assert.deepEqual(parseSource(input), out);
+	});
+
+	it("should return 'App' if source is unknown", () => {
+		const input = "mobile";
+		const out = "App";
+
+		assert.deepEqual(parseSource(input), out);
 	});
 });

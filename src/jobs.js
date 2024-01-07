@@ -1,43 +1,4 @@
-import { DEMO_SYS, DEMO_SHEET } from "./demo-data.js";
-
-function copy(text) {
-	navigator.clipboard.writeText(text).then(
-		function () {
-			console.log(`Copied: ${text}`);
-		},
-		function (err) {
-			console.error("Could not copy text: ", err);
-		},
-	);
-}
-
-export function sortArrayWithTime(arr, pos) {
-	// Note: .slice() to create a new array
-	const upperBound = new Date("9999-01-01");
-	return arr.slice().sort((a, b) => {
-		const timeA = a[pos] === "" ? upperBound : new Date("1970-01-01 " + a[pos]);
-		const timeB = b[pos] === "" ? upperBound : new Date("1970-01-01 " + b[pos]);
-		return timeA - timeB;
-	});
-}
-
-export function formatDate(dateObj) {
-	return dateObj.toLocaleDateString("en-US", {
-		month: "2-digit",
-		day: "2-digit",
-	});
-}
-
-export function findMostFrequent(freqMap) {
-	const sortedEntries = Object.entries(freqMap).sort((a, b) => b[1] - a[1]);
-	return sortedEntries.length > 0 ? sortedEntries[0][0] : undefined;
-}
-
-export function toTitleCase(str) {
-	return str.replace(/\w\S*/g, (txt) => {
-		return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
-	});
-}
+import { toTitleCase, formatDate, findMostFrequent, calcMaskLength } from "./utils.js";
 
 export function parseConf(conf) {
 	let confInt = parseInt(conf.replace(/\D/g, "")); // Keep only the digits
@@ -96,22 +57,24 @@ export function parseDate(dateStr) {
 	return undefined;
 }
 
+export function parseTime(timeStr) {
+	// Keep only digits, ':' and the letters 'a', 'p', and 'm'.
+	return timeStr.toLowerCase().replace(/[^0-9:apm]/g, "");
+}
+
+export function parseVendor(vendor) {
+	// Keep only alphanums and spaces
+	return vendor.replace(/[^a-zA-Z0-9\s]/g, "").replace(/ +/g, " "); // Remove multiple consecutive spaces
+}
+
 export function parseUploadPeriod(uploadPeriod) {
 	uploadPeriod = uploadPeriod.toLowerCase().replace(/[^a-z]/g, ""); // Keep only alpha
 
-	if (["before", "during"].includes(uploadPeriod)) {
-		return uploadPeriod;
-	}
-
-	return "";
+	return ["before", "during"].includes(uploadPeriod) ? uploadPeriod : "";
 }
 
 export function parseSource(source) {
-	source = source.toLowerCase().replace(/[^a-z]/g, ""); // Keep only alpha
-
-	if (source === "spotchecker") return "SpotChecker";
-
-	return "CES App";
+	return source.toLowerCase().replace(/[^a-z]/g, "") === "email" ? "Email" : "App"; // Keep only alpha
 }
 
 export function parseTable(tableStr, rowSize) {
@@ -159,9 +122,9 @@ export function parseTable(tableStr, rowSize) {
 			currentCell.includes("\n") &&
 			(!currentCell.startsWith('"') || !currentCell.endsWith('"'))
 		) {
-			currentRow.concat(currentCell.split("\n").map((cell) => formatCell(cell)));
+			currentRow.concat(currentCell.split("\n").map((cell) => parseCell(cell)));
 		} else {
-			currentRow.push(formatCell(currentCell));
+			currentRow.push(parseCell(currentCell));
 			currentCell = "";
 		}
 
@@ -178,7 +141,7 @@ export function parseTable(tableStr, rowSize) {
 			finalCells = currentCell
 				.trim()
 				.split("\n")
-				.map((cell) => formatCell(cell));
+				.map((cell) => parseCell(cell));
 
 			if (finalCells.length > 1) {
 				currentRow = currentRow.concat(finalCells[0]);
@@ -186,7 +149,7 @@ export function parseTable(tableStr, rowSize) {
 				currentRow = currentRow.concat(finalCells);
 			}
 		} else {
-			currentRow.push(formatCell(currentCell));
+			currentRow.push(parseCell(currentCell));
 		}
 	}
 
@@ -196,7 +159,7 @@ export function parseTable(tableStr, rowSize) {
 	return parsedTable;
 }
 
-export function formatCell(cell) {
+export function parseCell(cell) {
 	// Remove trailing newlines that might
 	let fmtCell = cell.replaceAll("\t", "").trim();
 
@@ -226,9 +189,11 @@ export function mapJobsSystem(rows) {
 			workerName += " ";
 		}
 
+		if (workerName.trim() !== "") workerName = parseName(workerName);
+
 		result[conf] = {
 			...(result[conf] || {}),
-			[parseName(workerName)]: [vendor, start],
+			[workerName]: [parseVendor(vendor), parseTime(start)],
 		};
 	});
 
@@ -252,40 +217,34 @@ export function mapJobsSheet(rows) {
 		}
 
 		conf = parseConf(conf);
-		workerName = parseName(workerName);
-		uploadPeriod = parseUploadPeriod(uploadPeriod);
-		source = parseSource(source);
-
-		comment.replaceAll("  ", "");
+		comment.replace(/ +/g, " "); // Remove multiple consecutive spaces
 
 		result[conf] = {
 			...(result[conf] || {}),
-			[workerName]: [uploadPeriod, source, comment],
+			[parseName(workerName)]: [
+				parseUploadPeriod(uploadPeriod),
+				parseSource(source),
+				comment,
+			],
 		};
 	});
 
-	const mostFreqDate = findMostFrequent(dateToCount) || formatDate(new Date());
-	result["globalDate"] = mostFreqDate;
+	const globalDate = findMostFrequent(dateToCount) || formatDate(new Date());
 
-	return result;
+	return [result, globalDate];
 }
 
-export function calcMaskLength(rowCount) {
-	return rowCount < 248 ? 250 : (Math.ceil(rowCount / 10) + 1) * 10;
-}
-
-export function combine(system, sheet, systemRowCount, sheetRowCount) {
+export function combineJobs(system, sheet, globalDate) {
 	let result = [];
-	let date = sheet["globalDate"];
 
 	for (let conf in system) {
 		for (let workerName in system[conf]) {
-			let manualValues = ["", "CES App", ""];
+			let manualValues = ["", "App", ""];
 			if (conf in sheet && workerName in sheet[conf]) {
 				manualValues = sheet[conf][workerName];
 			}
 			result.push([
-				date,
+				globalDate,
 				conf,
 				system[conf][workerName][0],
 				workerName,
@@ -295,12 +254,18 @@ export function combine(system, sheet, systemRowCount, sheetRowCount) {
 		}
 	}
 
+	return result;
+}
+
+export function padJobsArray(jobs, systemRowCount, sheetRowCount, globalDate) {
+	let result = jobs;
+
 	// Subtract 2 due to header
 	const systemMaskLength = calcMaskLength(systemRowCount) - 2;
 	const sheetMaskLength = calcMaskLength(sheetRowCount) - 2;
 
 	result = result.concat(
-		Array(systemMaskLength - result.length).fill([date, "", "", "", "", "CES App", "", ""]),
+		Array(systemMaskLength - result.length).fill([globalDate, "", "", "", "", "App", "", ""]),
 	);
 
 	// Create an anchor point in Sheets so deleting these rows is easier
@@ -311,126 +276,4 @@ export function combine(system, sheet, systemRowCount, sheetRowCount) {
 	}
 
 	return result;
-}
-
-function adjustTBodySize(tbody, targetSize) {
-	const tableRows = tbody.children;
-	const sizeDiff = targetSize - tableRows.length;
-
-	if (sizeDiff < 0) {
-		removeTableRows(tbody, Math.abs(sizeDiff), tableRows);
-	} else if (sizeDiff > 0) {
-		addTableRows(tbody, sizeDiff);
-	}
-}
-
-function addTableRows(tbody, rowCount, cellCount = 8) {
-	const fragment = document.createDocumentFragment();
-
-	for (let i = 0; i < rowCount; i++) {
-		const rowNode = document.createElement("tr");
-
-		for (let j = 0; j < cellCount; j++) {
-			const cellNode = document.createElement("td");
-			rowNode.appendChild(cellNode);
-		}
-
-		fragment.appendChild(rowNode);
-	}
-
-	tbody.appendChild(fragment);
-}
-
-function removeTableRows(tbody, rowCount, tableRows) {
-	for (let i = 0; i < rowCount; i++) {
-		tbody.removeChild(tableRows[i]);
-	}
-}
-
-function populateTBody(tbody, array) {
-	const tableRows = Array.from(tbody.children);
-
-	tableRows.forEach((rowNode, i) => {
-		const cells = Array.from(rowNode.children);
-		cells.forEach((cellNode, j) => {
-			cellNode.textContent = array[i][j];
-		});
-	});
-}
-
-export function countRows(obj) {
-	return Object.values(obj).reduce((acc, value) => acc + Object.keys(value).length, 0);
-}
-
-function showButtonStatus(button, nodeClass) {
-	button.classList.toggle(nodeClass);
-	setTimeout(() => {
-		button.classList.toggle(nodeClass);
-	}, 1000);
-}
-
-let sysInputArea;
-let sheetInputArea;
-let paddedRows = [];
-
-function processInput() {
-	const systemJobs = mapJobsSystem(parseTable(sysInputArea.value));
-	const systemRowCount = countRows(systemJobs);
-
-	if (systemRowCount <= 0) return "failure";
-
-	// Don't map the jobs directly since we care about the duplicate count, empty count etc.
-	const sheetRows = parseTable(sheetInputArea.value);
-	const [sheetJobs, globalDate] = mapJobsSheet(sheetRows);
-
-	const tbody = document.body.getElementsByTagName("tbody")[0];
-	adjustTBodySize(tbody, systemRowCount);
-
-	const combinedJobs = sortArrayWithTime(combineJobs(systemJobs, sheetJobs, globalDate), 7);
-	populateTBody(tbody, combinedJobs);
-
-	const tableContainer = document.getElementById("table-container");
-	tableContainer.style.display = "flex";
-
-	const rowCountContainer = document.getElementById("row-count-container");
-	const rowCountNode = rowCountContainer.firstElementChild;
-	rowCountNode.textContent = `Row Count: ${systemRowCount}`;
-	rowCountContainer.style.display = "flex";
-
-	paddedRows = padJobsArray(
-		combinedJobs,
-		systemRowCount,
-		sheetRows.length,
-		globalDate,
-	);
-
-	return "success";
-}
-
-function copyRows(button) {
-	if (globalRows.length === 0) {
-		toggleClass(button, "failure");
-		return;
-	}
-
-	copy(globalRows.map((row) => row.join("\t")).join("\n"));
-	toggleClass(button, "success");
-}
-
-function showDemo() {
-	sysInputArea.value = DEMO_SYS;
-	sheetInputArea.value = DEMO_SHEET;
-
-	return processInput();
-}
-
-// Check if window is defined (i.e., running in a browser environment)
-if (typeof window !== "undefined") {
-	sysInputArea = document.getElementById("sys-input")
-	sheetInputArea = document.getElementById("sheet-input")
-
-	window.showButtonStatus = showButtonStatus;
-	window.processInput = processInput;
-	window.copyRows = copyRows;
-	window.showDemo = showDemo;
 }

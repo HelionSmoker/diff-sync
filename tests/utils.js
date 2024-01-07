@@ -1,4 +1,11 @@
 import chai from "chai";
 const { assert } = chai;
 
-import { sortArrayWithTime, formatDate, findMostFrequent, toTitleCase, calcMaskLength, countRows } from "../main.js";
+import {
+	sortByTime,
+	formatDate,
+	findMostFrequent,
+	toTitleCase,
+	calcMaskLength,
+	countRows,
+} from "../src/utils.js";

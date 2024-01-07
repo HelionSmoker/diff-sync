@@ -1,12 +1,12 @@
 import chai from "chai";
 const { assert } = chai;
 
-import { parseTable } from "../main.js";
-import { DEMO_SYS, DEMO_SHEET, PARSED_DEMO_SYS, PARSED_DEMO_SHEET } from "../demo-data.js";
+import { parseTable } from "../src/jobs.js";
+import { DEMO_SYS, DEMO_SHEET, PARSED_DEMO_SYS, PARSED_DEMO_SHEET } from "../src/demo-data.js";
 
 describe("Demo Parsing Test", () => {
 	it("should parse the system jobs correctly", () => {
-		console.log(parseTable(DEMO_SYS))
+		console.log(parseTable(DEMO_SYS));
 		assert.deepEqual(parseTable(DEMO_SYS), PARSED_DEMO_SYS);
 	});
 
