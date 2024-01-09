@@ -30,10 +30,25 @@ export function findMostFrequent(freqMap) {
 	return sortedEntries.length > 0 ? sortedEntries[0][0] : undefined;
 }
 
-export function toTitleCase(str) {
-	return str.replace(/\w\S*/g, (txt) => {
-		return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
-	});
+export function capitalizeString(str) {
+	return str.length > 0 ? str.charAt(0).toUpperCase() + str.toLowerCase().slice(1) : str;
+}
+
+export function toPascalCase(str) {
+	let result = "";
+	let word = "";
+
+	for (const char of str) {
+		word += char;
+		if (!/[a-zA-Z]/.test(char) && word.length > 0) {
+			result += capitalizeString(word);
+			word = "";
+		}
+	}
+
+	result += capitalizeString(word);
+
+	return result;
 }
 
 export function calcMaskLength(rowCount) {

@@ -1,4 +1,4 @@
-import { toTitleCase, formatDate, findMostFrequent, calcMaskLength } from "./utils.js";
+import { toPascalCase, formatDate, findMostFrequent, calcMaskLength } from "./utils.js";
 
 export function parseConf(conf) {
 	let confInt = parseInt(conf.replace(/\D/g, "")); // Keep only the digits
@@ -13,7 +13,7 @@ export function parseName(name) {
 		.replace(/[^a-zA-Z\s]/g, "") // Keep only alpha and space
 		.trim()
 		.replace(/ +/g, " "); // Remove multiple consecutive spaces
-	return toTitleCase(name);
+	return toPascalCase(name);
 }
 
 export function parseDate(dateStr) {
