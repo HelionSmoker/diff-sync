@@ -36,21 +36,20 @@ export class ShiftProcessor {
 		this.shiftsDate;
 
 		this.currentSortColumn = null;
-		this.sortOrder = "ascending";
 	}
 
 	async processShifts() {
 		const systemCSV = parseCSV(
 			`${SYSTEM_SHIFTS_HEADER.join("\t")}\n${this.systemInputArea.value}`,
 		);
-		console.log(await systemCSV);
+		console.log(JSON.stringify(await systemCSV));
 		const systemData = await this.processCSV(systemCSV, SYSTEM_SHIFTS_HEADER);
 
 		const sheetCSV = parseCSV(
 			`${SHEET_SHIFTS_HEADER.join("\t")}\n${this.sheetInputArea.value}`,
 		);
 		const sheetData = await this.processCSV(sheetCSV, SHEET_SHIFTS_HEADER);
-		console.log(JSON.stringify(systemData), '\n\n', JSON.stringify(sheetData));
+		// console.log(JSON.stringify(systemData), '\n\n', JSON.stringify(sheetData));
 		this.systemShiftCount = countGrandChildren(systemData);
 		this.sheetShiftCount = Object.keys(sheetData).length; //todo, not from map
 
@@ -174,6 +173,7 @@ export class ShiftProcessor {
 	sortByCol(colIndex) {
 		if (this.currentSortColumn === colIndex) {
 			this.shifts.reverse();
+			this.paddedShifts = this.padShifts(this.shifts);
 			return;
 		}
 
@@ -202,7 +202,7 @@ export class ShiftProcessor {
 				});
 		}
 
-		this.sortOrder = "ascending"; // Set to ascending since we're sorting a new column
+		this.paddedShifts = this.padShifts(this.shifts);
 		this.currentSortColumn = colIndex;
 	}
 
@@ -210,7 +210,7 @@ export class ShiftProcessor {
 		if (this.systemShiftCount === 0)
 			return new Status(
 				"failure",
-				"System shifts haven't been processes, or no system sheets were found.",
+				"System shifts haven't been processes, or no system shifts were found.",
 			);
 
 		copy(convertArrayToCSV(this.paddedShifts));
@@ -273,7 +273,7 @@ export function parseConf(conf) {
 
 export function parseVendor(vendor) {
 	// Keep only alphanumerical and spaces
-	return vendor.replace(/[^a-zA-Z0-9\s]/g, "").replace(/ +/g, " "); // Remove multiple consecutive spaces
+	return vendor.replace(/[^a-zA-Z0-9\s]/g, "").trim().replace(/ +/g, " "); // Remove multiple consecutive spaces
 }
 
 const NAME_DIACRITICS_PATTERN = /[àáâãäåæçèéêëìíîïñòóôõöøùúûüýÿăąćčđėęěğıįłńňœřşšţťūůűųźž]/;

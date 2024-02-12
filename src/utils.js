@@ -32,7 +32,7 @@ export function parseCSV(csvText) {
 export function copy(text) {
 	navigator.clipboard.writeText(text).then(
 		function () {
-			console.log(`Copied: ${text}`);
+			console.log(`Copied:\n${text}`);
 		},
 		function (err) {
 			console.error("Could not copy text: ", err);

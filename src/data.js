@@ -91,54 +91,205 @@ Dec 10 2023	51230	Vendor1	Marcus Dillon	during	App	no pic	8:00 AM
 12/10	51237	Vendor1	 Linsey Robert 	before	App	missing     boots and no "stop" sign! 	8:00 AM
 `;
 
-export const PARSED_DEMO_SYSTEM = [
-	[""],
-	["51230", "Vendor1", "Roderick Corina", "1:00 AM"],
-	[""],
-	["51231", "Vendor3", "Trent Bevan", "8:00 AM"],
-	[""],
-	["51232", "Vendor1", "Marcus Dillon", "5:00 PM"],
-	["51232", "Vendor2", "Marina Brandon", "9:20 AM"],
-	[""],
-	["51231", "Vendor2", "Marina Brandon", "6:00 PM"],
-	["51231", "Vendor3", "Trent Bevan", "9:00 PM"],
-	[""],
-	["51233", "Vendor1", "Agatha Colin", "8:00 AM"],
-	["51233", "Vendor1", "Agatha Colin", "3:00 PM"],
-	["51233", "Vendor2", "Agatha Colin", "3:00 PM"],
-	["51233", "Vendor 2", "Agatha Colin", "3:00 PM"],
-	[""],
-	["51234", "", "", "8:00 AM"],
-	["51234", "", "", "8:00 AM"],
-	["51234", "", "", "8:00 AM"],
-	[""],
-	["51234", "Vendor Name", "Zane Wilford", "6:00 AM"],
-	["51234", "Vendor  N#@ame", "Earl Harper", "6:00 AM"],
-	[""],
-	["51_235", "Vendor1", "Louis Monroe", "2:00 PM"],
-	["100051235", "Vendor1", "Cooper Peta", "2:00 PM"],
-	["00051235", "Vendor2", "Orpha Ethan", "1:00 PM"],
-	["-0_10abc0@0_5,1.235", "Vendor2", "Hellen Natalie", "1:00 PM"],
-	[""],
-	["51236", "Vendor1", "aleta_ rosanne", "8:00 AM"],
-	["51236", "Vendor1", "FElICIa", "2:00 AM"],
-	["51236", "Vendor1", "!!@# Sh##eridan456 Haywood 123", "9:00 AM"],
-	["51236", "Vendor1", "", "6:00 AM"],
-	[""],
-	["51237", "Vendor1", "Pheobe Bertha", "8 :00 aM"],
-	["51237", "Vendor1", "Franklin Narelle", "6 :00 Am"],
-	["51237", "Vendor1", "Rochelle Maude", "bdfgh 5 !!:00 PM()#$"],
-	[""],
-	["51238", "Vendor1", "Sheldon Mac", "6:00 AM"],
-	["51238", "Vendor1", "Naomi Brennan", "6:00 AM"],
-	["51238", "Vendor1", "Kelvin Denton", "6:00 AM"],
-	["51239", "Vendor1", "Dayna Kelley", "6:00 AM"],
-	["51239", "Vendor1", "Cooper Isla", "6:00 AM"],
-	["51239", "Vendor1", "Quinten Alvin", "6:00 AM"],
-	["51239", "Vendor1", "Fiona Gwyneth", "6:00 AM"],
-	["51239", "Vendor1", "Raymond Lilyrose", "6:00 AM"],
-];
-
+const PARSED_DEMO_SYSTEM = [
+	{
+		"Confirmation": "51230",
+		"Vendor": "Vendor1",
+		"Worker Name": "Roderick Corina",
+		"Start Time": "8:00 AM"
+	},
+	{
+		"Confirmation": "51230",
+		"Vendor": "Vendor2",
+		"Worker Name": "Trent Bevan",
+		"Start Time": "9:00 AM"
+	},
+	{
+		"Confirmation": "51230",
+		"Vendor": "Vendor1",
+		"Worker Name": "Marcus Dillon",
+		"Start Time": "5:00 PM"
+	},
+	{
+		"Confirmation": "51231",
+		"Vendor": "Vendor2",
+		"Worker Name": "Marina Brandon",
+		"Start Time": "8:00 AM"
+	},
+	{
+		"Confirmation": "51231",
+		"Vendor": "Vendor1",
+		"Worker Name": "Marina Brandon",
+		"Start Time": "8:00 AM"
+	},
+	{
+		"Confirmation": "51231",
+		"Vendor": "Vendor2",
+		"Worker Name": "Marina Brandon",
+		"Start Time": "6:00 PM"
+	},
+	{
+		"Confirmation": "51231",
+		"Vendor": "Vend@r 2",
+		"Worker Name": "Marina Brandon",
+		"Start Time": "8:00 AM"
+	},
+	{
+		"Confirmation": "51231",
+		"Vendor": "   Vendor2  ",
+		"Worker Name": "Marina Brandon",
+		"Start Time": "8:00 AM"
+	},
+	{
+		"Confirmation": "51232",
+		"Vendor": "Vendor2",
+		"Worker Name": "Trent Bevan",
+		"Start Time": "8:00 AM"
+	},
+	{
+		"Confirmation": "51233",
+		"Vendor": "",
+		"Worker Name": "",
+		"Start Time": "8:00 AM"
+	},
+	{
+		"Confirmation": "51233",
+		"Vendor": "",
+		"Worker Name": "",
+		"Start Time": "8:00 AM"
+	},
+	{
+		"Confirmation": "51233",
+		"Vendor": "",
+		"Worker Name": "",
+		"Start Time": "8:00 AM"
+	},
+	{
+		"Confirmation": "51233",
+		"Vendor": "Vendor1",
+		"Worker Name": "",
+		"Start Time": "8:00 AM"
+	},
+	{
+		"Confirmation": "51_234",
+		"Vendor": "Vendor1",
+		"Worker Name": "Louis Monroe",
+		"Start Time": "8:00 AM"
+	},
+	{
+		"Confirmation": "100051234",
+		"Vendor": "Vendor1",
+		"Worker Name": "Cooper Peta",
+		"Start Time": "8:00 AM"
+	},
+	{
+		"Confirmation": "00051234",
+		"Vendor": "Vendor2",
+		"Worker Name": "Orpha Ethan",
+		"Start Time": "8:00 AM"
+	},
+	{
+		"Confirmation": "-0_10abc0@0_5,1.234",
+		"Vendor": "Vendor1",
+		"Worker Name": "Hellen Natalie",
+		"Start Time": "8:00 AM"
+	},
+	{
+		"Confirmation": "51235",
+		"Vendor": "Vendor1",
+		"Worker Name": " aleta_ rosanne ",
+		"Start Time": "8:00 AM"
+	},
+	{
+		"Confirmation": "51235",
+		"Vendor": "Vendor1",
+		"Worker Name": "         FElICIa       ",
+		"Start Time": "8:00 AM"
+	},
+	{
+		"Confirmation": "51235",
+		"Vendor": "Vendor1",
+		"Worker Name": " !!@# Sh##eridan456 Haywood 123",
+		"Start Time": "8:00 AM"
+	},
+	{
+		"Confirmation": "51235",
+		"Vendor": "Vendor1",
+		"Worker Name": "",
+		"Start Time": "6:00 AM"
+	},
+	{
+		"Confirmation": "51236",
+		"Vendor": "Vendor1",
+		"Worker Name": "Pheobe Bertha",
+		"Start Time": "8:00 aM"
+	},
+	{
+		"Confirmation": "51236",
+		"Vendor": "Vendor1",
+		"Worker Name": "Franklin Narelle",
+		"Start Time": "  8: 00 Am"
+	},
+	{
+		"Confirmation": "51236",
+		"Vendor": "Vendor1",
+		"Worker Name": "Rochelle Maude",
+		"Start Time": " bdfgh 8!!:00 PM()#$"
+	},
+	{
+		"Confirmation": "51237",
+		"Vendor": "Vendor1",
+		"Worker Name": " Sheldon Mac ",
+		"Start Time": "8:00 AM"
+	},
+	{
+		"Confirmation": "51237",
+		"Vendor": "Vendor1",
+		"Worker Name": " Naomi Brennan ",
+		"Start Time": "8:00 AM"
+	},
+	{
+		"Confirmation": "51237",
+		"Vendor": "Vendor1",
+		"Worker Name": " Kelvin Denton ",
+		"Start Time": "8:00 AM"
+	},
+	{
+		"Confirmation": "51237",
+		"Vendor": "Vendor1",
+		"Worker Name": " Dayna Kelley ",
+		"Start Time": "8:00 AM"
+	},
+	{
+		"Confirmation": "51237",
+		"Vendor": "Vendor1",
+		"Worker Name": " Cooper Isla ",
+		"Start Time": "8:00 AM"
+	},
+	{
+		"Confirmation": "51237",
+		"Vendor": "Vendor1",
+		"Worker Name": " Quinten Alvin ",
+		"Start Time": "8:00 AM"
+	},
+	{
+		"Confirmation": "51237",
+		"Vendor": "Vendor1",
+		"Worker Name": " Fiona Gwyneth ",
+		"Start Time": "8:00 AM"
+	},
+	{
+		"Confirmation": "51237",
+		"Vendor": "Vendor1",
+		"Worker Name": " Raymond Lilyrose ",
+		"Start Time": "8:00 AM"
+	},
+	{
+		"Confirmation": "51237",
+		"Vendor": "Vendor1",
+		"Worker Name": " Linsey Robert ",
+		"Start Time": "8:00 AM"
+	}]
 const sum = {
     "Roderick Corina": [{
         "Confirmation": [51230, "51230"],
@@ -147,16 +298,18 @@ const sum = {
         "Start Time": ["8:00 AM", "8:00 AM"]
     }],
     "Trent Bevan": [{
-        "Confirmation": [51230, "51230"],
-        "Vendor": ["Vendor2", "Vendor2"],
-        "Worker Name": ["Trent Bevan", "Trent Bevan"],
-        "Start Time": ["9:00 AM", "9:00 AM"]
-    }, {
-        "Confirmation": [51232, "51232"],
-        "Vendor": ["Vendor2", "Vendor2"],
-        "Worker Name": ["Trent Bevan", "Trent Bevan"],
-        "Start Time": ["8:00 AM", "8:00 AM"]
-    }],
+            "Confirmation": [51230, "51230"],
+            "Vendor": ["Vendor2", "Vendor2"],
+            "Worker Name": ["Trent Bevan", "Trent Bevan"],
+            "Start Time": ["9:00 AM", "9:00 AM"]
+        },
+        {
+            "Confirmation": [51232, "51232"],
+            "Vendor": ["Vendor2", "Vendor2"],
+            "Worker Name": ["Trent Bevan", "Trent Bevan"],
+            "Start Time": ["8:00 AM", "8:00 AM"]
+        }
+    ],
     "Marcus Dillon": [{
         "Confirmation": [51230, "51230"],
         "Vendor": ["Vendor1", "Vendor1"],
@@ -164,57 +317,67 @@ const sum = {
         "Start Time": ["5:00 AM", "5:00 PM"]
     }],
     "Marina Brandon": [{
-        "Confirmation": [51231, "51231"],
-        "Vendor": ["Vendor2", "Vendor2"],
-        "Worker Name": ["Marina Brandon", "Marina Brandon"],
-        "Start Time": ["8:00 AM", "8:00 AM"]
-    }, {
-        "Confirmation": [51231, "51231"],
-        "Vendor": ["Vendor1", "Vendor1"],
-        "Worker Name": ["Marina Brandon", "Marina Brandon"],
-        "Start Time": ["8:00 AM", "8:00 AM"]
-    }, {
-        "Confirmation": [51231, "51231"],
-        "Vendor": ["Vendor2", "Vendor2"],
-        "Worker Name": ["Marina Brandon", "Marina Brandon"],
-        "Start Time": ["6:00 AM", "6:00 PM"]
-    }, {
-        "Confirmation": [51231, "51231"],
-        "Vendor": ["Vendr 2", "Vend@r 2"],
-        "Worker Name": ["Marina Brandon", "Marina Brandon"],
-        "Start Time": ["8:00 AM", "8:00 AM"]
-    }, {
-        "Confirmation": [51231, "51231"],
-        "Vendor": [" Vendor2 ", "   Vendor2  "],
-        "Worker Name": ["Marina Brandon", "Marina Brandon"],
-        "Start Time": ["8:00 AM", "8:00 AM"]
-    }],
+            "Confirmation": [51231, "51231"],
+            "Vendor": ["Vendor2", "Vendor2"],
+            "Worker Name": ["Marina Brandon", "Marina Brandon"],
+            "Start Time": ["8:00 AM", "8:00 AM"]
+        },
+        {
+            "Confirmation": [51231, "51231"],
+            "Vendor": ["Vendor1", "Vendor1"],
+            "Worker Name": ["Marina Brandon", "Marina Brandon"],
+            "Start Time": ["8:00 AM", "8:00 AM"]
+        },
+        {
+            "Confirmation": [51231, "51231"],
+            "Vendor": ["Vendor2", "Vendor2"],
+            "Worker Name": ["Marina Brandon", "Marina Brandon"],
+            "Start Time": ["6:00 AM", "6:00 PM"]
+        },
+        {
+            "Confirmation": [51231, "51231"],
+            "Vendor": ["Vendr 2", "Vend@r 2"],
+            "Worker Name": ["Marina Brandon", "Marina Brandon"],
+            "Start Time": ["8:00 AM", "8:00 AM"]
+        },
+        {
+            "Confirmation": [51231, "51231"],
+            "Vendor": [" Vendor2 ", "   Vendor2  "],
+            "Worker Name": ["Marina Brandon", "Marina Brandon"],
+            "Start Time": ["8:00 AM", "8:00 AM"]
+        }
+    ],
     "": [{
-        "Confirmation": [51233, "51233"],
-        "Vendor": ["", ""],
-        "Worker Name": ["", ""],
-        "Start Time": ["8:00 AM", "8:00 AM"]
-    }, {
-        "Confirmation": [51233, "51233"],
-        "Vendor": ["", ""],
-        "Worker Name": ["", ""],
-        "Start Time": ["8:00 AM", "8:00 AM"]
-    }, {
-        "Confirmation": [51233, "51233"],
-        "Vendor": ["", ""],
-        "Worker Name": ["", ""],
-        "Start Time": ["8:00 AM", "8:00 AM"]
-    }, {
-        "Confirmation": [51233, "51233"],
-        "Vendor": ["Vendor1", "Vendor1"],
-        "Worker Name": ["", ""],
-        "Start Time": ["8:00 AM", "8:00 AM"]
-    }, {
-        "Confirmation": [51235, "51235"],
-        "Vendor": ["Vendor1", "Vendor1"],
-        "Worker Name": ["", ""],
-        "Start Time": ["6:00 AM", "6:00 AM"]
-    }],
+            "Confirmation": [51233, "51233"],
+            "Vendor": ["", ""],
+            "Worker Name": ["", ""],
+            "Start Time": ["8:00 AM", "8:00 AM"]
+        },
+        {
+            "Confirmation": [51233, "51233"],
+            "Vendor": ["", ""],
+            "Worker Name": ["", ""],
+            "Start Time": ["8:00 AM", "8:00 AM"]
+        },
+        {
+            "Confirmation": [51233, "51233"],
+            "Vendor": ["", ""],
+            "Worker Name": ["", ""],
+            "Start Time": ["8:00 AM", "8:00 AM"]
+        },
+        {
+            "Confirmation": [51233, "51233"],
+            "Vendor": ["Vendor1", "Vendor1"],
+            "Worker Name": ["", ""],
+            "Start Time": ["8:00 AM", "8:00 AM"]
+        },
+        {
+            "Confirmation": [51235, "51235"],
+            "Vendor": ["Vendor1", "Vendor1"],
+            "Worker Name": ["", ""],
+            "Start Time": ["6:00 AM", "6:00 AM"]
+        }
+    ],
     "Louis Monroe": [{
         "Confirmation": [51234, "51_234"],
         "Vendor": ["Vendor1", "Vendor1"],
