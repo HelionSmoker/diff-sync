@@ -1,4 +1,3 @@
-
 export class ShiftDisplay {
 	constructor(tbody, tableContainer, rowCountContainer) {
 		this.tbody = tbody;
@@ -6,8 +5,6 @@ export class ShiftDisplay {
 		this.rowCountContainer = rowCountContainer;
 
 		this.shifts = [];
-
-
 	}
 
 	display(shifts) {
@@ -63,8 +60,6 @@ export class ShiftDisplay {
 			this.tbody.removeChild(tableRows[i]);
 		}
 	}
-
-
 
 	updateRowCounter() {
 		this.rowCountContainer.style.display = "flex";

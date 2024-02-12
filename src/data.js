@@ -38,9 +38,9 @@ export const DEMO_SYSTEM = `
 51235	Vendor1	 !!@# Sh##eridan456 Haywood 123	8:00 AM
 51235	Vendor1		6:00 AM
 
-51236	Vendor1	Pheobe Bertha	8 :00 aM
-51236	Vendor1	Franklin Narelle	  8 :00 Am
-51236	Vendor1	Rochelle Maude	 bdfgh 8 !!:00 PM()#$
+51236	Vendor1	Pheobe Bertha	8:00 aM
+51236	Vendor1	Franklin Narelle	"  8: 00 Am"
+51236	Vendor1	Rochelle Maude	 bdfgh 8!!:00 PM()#$
 
 51237	Vendor1	 Sheldon Mac 	8:00 AM
 51237	Vendor1	 Naomi Brennan 	8:00 AM
@@ -85,7 +85,7 @@ Dec 10 2023	51230	Vendor1	Marcus Dillon	during	App	no pic	8:00 AM
 
 12/10	51237	Vendor1	Cooper Isla	before	App	everything good	8:00 AM
 12/10	51237	Vendor1	Quinten Alvin	before	App	everything good	  8:00 AM
-12/10	51237	Vendor1	Fiona Gwyneth	before	App	everything good	 bdfgh 5 !!:008:00 AM
+12/10	51237	Vendor1	Fiona Gwyneth	before	App	everything good	 bdfgh 5!!:008:00 AM
 
 12/10	51237	Vendor1	Raymond Lilyrose	before	App	everything    good	8:00 AM
 12/10	51237	Vendor1	 Linsey Robert 	before	App	missing     boots and no "stop" sign! 	8:00 AM
@@ -138,6 +138,198 @@ export const PARSED_DEMO_SYSTEM = [
 	["51239", "Vendor1", "Fiona Gwyneth", "6:00 AM"],
 	["51239", "Vendor1", "Raymond Lilyrose", "6:00 AM"],
 ];
+
+const sum = {
+    "Roderick Corina": [{
+        "Confirmation": [51230, "51230"],
+        "Vendor": ["Vendor1", "Vendor1"],
+        "Worker Name": ["Roderick Corina", "Roderick Corina"],
+        "Start Time": ["8:00 AM", "8:00 AM"]
+    }],
+    "Trent Bevan": [{
+        "Confirmation": [51230, "51230"],
+        "Vendor": ["Vendor2", "Vendor2"],
+        "Worker Name": ["Trent Bevan", "Trent Bevan"],
+        "Start Time": ["9:00 AM", "9:00 AM"]
+    }, {
+        "Confirmation": [51232, "51232"],
+        "Vendor": ["Vendor2", "Vendor2"],
+        "Worker Name": ["Trent Bevan", "Trent Bevan"],
+        "Start Time": ["8:00 AM", "8:00 AM"]
+    }],
+    "Marcus Dillon": [{
+        "Confirmation": [51230, "51230"],
+        "Vendor": ["Vendor1", "Vendor1"],
+        "Worker Name": ["Marcus Dillon", "Marcus Dillon"],
+        "Start Time": ["5:00 AM", "5:00 PM"]
+    }],
+    "Marina Brandon": [{
+        "Confirmation": [51231, "51231"],
+        "Vendor": ["Vendor2", "Vendor2"],
+        "Worker Name": ["Marina Brandon", "Marina Brandon"],
+        "Start Time": ["8:00 AM", "8:00 AM"]
+    }, {
+        "Confirmation": [51231, "51231"],
+        "Vendor": ["Vendor1", "Vendor1"],
+        "Worker Name": ["Marina Brandon", "Marina Brandon"],
+        "Start Time": ["8:00 AM", "8:00 AM"]
+    }, {
+        "Confirmation": [51231, "51231"],
+        "Vendor": ["Vendor2", "Vendor2"],
+        "Worker Name": ["Marina Brandon", "Marina Brandon"],
+        "Start Time": ["6:00 AM", "6:00 PM"]
+    }, {
+        "Confirmation": [51231, "51231"],
+        "Vendor": ["Vendr 2", "Vend@r 2"],
+        "Worker Name": ["Marina Brandon", "Marina Brandon"],
+        "Start Time": ["8:00 AM", "8:00 AM"]
+    }, {
+        "Confirmation": [51231, "51231"],
+        "Vendor": [" Vendor2 ", "   Vendor2  "],
+        "Worker Name": ["Marina Brandon", "Marina Brandon"],
+        "Start Time": ["8:00 AM", "8:00 AM"]
+    }],
+    "": [{
+        "Confirmation": [51233, "51233"],
+        "Vendor": ["", ""],
+        "Worker Name": ["", ""],
+        "Start Time": ["8:00 AM", "8:00 AM"]
+    }, {
+        "Confirmation": [51233, "51233"],
+        "Vendor": ["", ""],
+        "Worker Name": ["", ""],
+        "Start Time": ["8:00 AM", "8:00 AM"]
+    }, {
+        "Confirmation": [51233, "51233"],
+        "Vendor": ["", ""],
+        "Worker Name": ["", ""],
+        "Start Time": ["8:00 AM", "8:00 AM"]
+    }, {
+        "Confirmation": [51233, "51233"],
+        "Vendor": ["Vendor1", "Vendor1"],
+        "Worker Name": ["", ""],
+        "Start Time": ["8:00 AM", "8:00 AM"]
+    }, {
+        "Confirmation": [51235, "51235"],
+        "Vendor": ["Vendor1", "Vendor1"],
+        "Worker Name": ["", ""],
+        "Start Time": ["6:00 AM", "6:00 AM"]
+    }],
+    "Louis Monroe": [{
+        "Confirmation": [51234, "51_234"],
+        "Vendor": ["Vendor1", "Vendor1"],
+        "Worker Name": ["Louis Monroe", "Louis Monroe"],
+        "Start Time": ["8:00 AM", "8:00 AM"]
+    }],
+    "Cooper Peta": [{
+        "Confirmation": [51234, "100051234"],
+        "Vendor": ["Vendor1", "Vendor1"],
+        "Worker Name": ["Cooper Peta", "Cooper Peta"],
+        "Start Time": ["8:00 AM", "8:00 AM"]
+    }],
+    "Orpha Ethan": [{
+        "Confirmation": [51234, "00051234"],
+        "Vendor": ["Vendor2", "Vendor2"],
+        "Worker Name": ["Orpha Ethan", "Orpha Ethan"],
+        "Start Time": ["8:00 AM", "8:00 AM"]
+    }],
+    "Hellen Natalie": [{
+        "Confirmation": [51234, "-0_10abc0@0_5,1.234"],
+        "Vendor": ["Vendor1", "Vendor1"],
+        "Worker Name": ["Hellen Natalie", "Hellen Natalie"],
+        "Start Time": ["8:00 AM", "8:00 AM"]
+    }],
+    "Aleta Rosanne": [{
+        "Confirmation": [51235, "51235"],
+        "Vendor": ["Vendor1", "Vendor1"],
+        "Worker Name": ["Aleta Rosanne", " aleta_ rosanne "],
+        "Start Time": ["8:00 AM", "8:00 AM"]
+    }],
+    "Felicia": [{
+        "Confirmation": [51235, "51235"],
+        "Vendor": ["Vendor1", "Vendor1"],
+        "Worker Name": ["Felicia", "         FElICIa       "],
+        "Start Time": ["8:00 AM", "8:00 AM"]
+    }],
+    "Sheridan Haywood": [{
+        "Confirmation": [51235, "51235"],
+        "Vendor": ["Vendor1", "Vendor1"],
+        "Worker Name": ["Sheridan Haywood", " !!@# Sh##eridan456 Haywood 123"],
+        "Start Time": ["8:00 AM", "8:00 AM"]
+    }],
+    "Pheobe Bertha": [{
+        "Confirmation": [51236, "51236"],
+        "Vendor": ["Vendor1", "Vendor1"],
+        "Worker Name": ["Pheobe Bertha", "Pheobe Bertha"],
+        "Start Time": ["8:00 AM", "8:00 aM"]
+    }],
+    "Franklin Narelle": [{
+        "Confirmation": [51236, "51236"],
+        "Vendor": ["Vendor1", "Vendor1"],
+        "Worker Name": ["Franklin Narelle", "Franklin Narelle"],
+        "Start Time": ["8:00 AM", "  8: 00 Am"]
+    }],
+    "Rochelle Maude": [{
+        "Confirmation": [51236, "51236"],
+        "Vendor": ["Vendor1", "Vendor1"],
+        "Worker Name": ["Rochelle Maude", "Rochelle Maude"],
+        "Start Time": ["8:00 AM", " bdfgh 8!!:00 PM()#$"]
+    }],
+    "Sheldon Mac": [{
+        "Confirmation": [51237, "51237"],
+        "Vendor": ["Vendor1", "Vendor1"],
+        "Worker Name": ["Sheldon Mac", " Sheldon Mac "],
+        "Start Time": ["8:00 AM", "8:00 AM"]
+    }],
+    "Naomi Brennan": [{
+        "Confirmation": [51237, "51237"],
+        "Vendor": ["Vendor1", "Vendor1"],
+        "Worker Name": ["Naomi Brennan", " Naomi Brennan "],
+        "Start Time": ["8:00 AM", "8:00 AM"]
+    }],
+    "Kelvin Denton": [{
+        "Confirmation": [51237, "51237"],
+        "Vendor": ["Vendor1", "Vendor1"],
+        "Worker Name": ["Kelvin Denton", " Kelvin Denton "],
+        "Start Time": ["8:00 AM", "8:00 AM"]
+    }],
+    "Dayna Kelley": [{
+        "Confirmation": [51237, "51237"],
+        "Vendor": ["Vendor1", "Vendor1"],
+        "Worker Name": ["Dayna Kelley", " Dayna Kelley "],
+        "Start Time": ["8:00 AM", "8:00 AM"]
+    }],
+    "Cooper Isla": [{
+        "Confirmation": [51237, "51237"],
+        "Vendor": ["Vendor1", "Vendor1"],
+        "Worker Name": ["Cooper Isla", " Cooper Isla "],
+        "Start Time": ["8:00 AM", "8:00 AM"]
+    }],
+    "Quinten Alvin": [{
+        "Confirmation": [51237, "51237"],
+        "Vendor": ["Vendor1", "Vendor1"],
+        "Worker Name": ["Quinten Alvin", " Quinten Alvin "],
+        "Start Time": ["8:00 AM", "8:00 AM"]
+    }],
+    "Fiona Gwyneth": [{
+        "Confirmation": [51237, "51237"],
+        "Vendor": ["Vendor1", "Vendor1"],
+        "Worker Name": ["Fiona Gwyneth", " Fiona Gwyneth "],
+        "Start Time": ["8:00 AM", "8:00 AM"]
+    }],
+    "Raymond Lilyrose": [{
+        "Confirmation": [51237, "51237"],
+        "Vendor": ["Vendor1", "Vendor1"],
+        "Worker Name": ["Raymond Lilyrose", " Raymond Lilyrose "],
+        "Start Time": ["8:00 AM", "8:00 AM"]
+    }],
+    "Linsey Robert": [{
+        "Confirmation": [51237, "51237"],
+        "Vendor": ["Vendor1", "Vendor1"],
+        "Worker Name": ["Linsey Robert", " Linsey Robert "],
+        "Start Time": ["8:00 AM", "8:00 AM"]
+    }]
+}
 
 // prettier-ignore
 export const PARSED_DEMO_SHEET = [

@@ -61,15 +61,12 @@ function bindEventListeners(shiftProcessor, shiftDisplay) {
 				const prevIcon = headerCells[prevSortColumn].querySelector("i");
 				prevIcon.classList.add("hidden");
 				prevIcon.style.transform = "rotate(0deg)"; // Reset to default orientation
-			}
 
-			if (sortIcon.classList.contains("hidden")) {
 				sortIcon.classList.remove("hidden");
 			} else {
-				console.log(i, sortIcon.style.transform)
-				sortIcon.style.transform === "rotate(180deg)" ? "rotate(0deg)" : "rotate(180deg)";
+				sortIcon.style.transform = sortIcon.style.transform === "rotate(180deg)" ? "rotate(0deg)" : "rotate(180deg)";
 			}
-
+			console.log(shiftProcessor.shifts)
 			shiftProcessor.sortByCol(i);
 			shiftDisplay.display(shiftProcessor.shifts);
 

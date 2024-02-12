@@ -50,7 +50,7 @@ export class ShiftProcessor {
 			`${SHEET_SHIFTS_HEADER.join("\t")}\n${this.sheetInputArea.value}`,
 		);
 		const sheetData = await this.processCSV(sheetCSV, SHEET_SHIFTS_HEADER);
-
+		console.log(JSON.stringify(systemData), '\n\n', JSON.stringify(sheetData));
 		this.systemShiftCount = countGrandChildren(systemData);
 		this.sheetShiftCount = Object.keys(sheetData).length; //todo, not from map
 
@@ -172,21 +172,16 @@ export class ShiftProcessor {
 	}
 
 	sortByCol(colIndex) {
-		// Check if we're sorting the same column again
 		if (this.currentSortColumn === colIndex) {
-			// Simply reverse the array if it's already sorted by this column
 			this.shifts.reverse();
-			this.sortOrder = this.sortOrder === "ascending" ? "descending" : "ascending";
 			return;
 		}
 
 		switch (colIndex) {
 			case 7:
-				this.shifts.map(shift => shift[7] = new Date("2000/01/01 " + shift[7]))
+				this.shifts.map(shift => shift[7] = new Date("2020-01-01 " + shift[7]))
 				this.shifts.sort((a, b) => a[7] - b[7])
 				this.shifts.map(shift => shift[7] = formatTime(shift[7]))
-
-				console.log(this.shifts);
 				break;
 			case 1:
 				this.shifts.sort();
@@ -198,8 +193,8 @@ export class ShiftProcessor {
 
 					// Handle empty strings for ascending and descending sort
 					if (valA === "" && valB === "") return 0;
-					if (valA === "") return this.sortOrder === "ascending" ? 1 : -1;
-					if (valB === "") return this.sortOrder === "ascending" ? -1 : 1;
+					if (valA === "") return 1;
+					if (valB === "") return -1;
 
 					if (valA < valB) return -1;
 					if (valA > valB) return 1;
@@ -319,22 +314,11 @@ export function parseSource(source) {
 }
 
 export function parseComment(comment) {
-	return comment.trim().replace(/ +/g, " "); // Remove multiple consecutive spaces
+	return comment.split(' ').filter(Boolean).map(word => word.charAt(0) + word.slice(1).toLowerCase()).join(' ');
 }
 
 export function parseTime(timeStr) {
-	if (!timeStr) return undefined;
-
-	const lcTimeStr = timeStr.toLowerCase();
-	let aCount = 0;
-	let pCount = 0;
-
-	for (const char of lcTimeStr) {
-		if (char === "a") aCount++;
-		if (char === "p") pCount++;
-	}
-
-	// Keep only digits and ':'
-	const timeFmt = lcTimeStr.replace(/[^0-9:]/g, "");
-	return timeFmt + (pCount > aCount ? "pm" : "am");
+	if (timeStr === "") return undefined;
+	const fmtTime = timeStr.toUpperCase().replace(/[^0-9:\s]/g, ""); // Keep only digits and ':'
+	return formatTime(new Date("2020-01-01 " + fmtTime));
 }

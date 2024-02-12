@@ -58,7 +58,7 @@ export function formatDate(dateObj) {
 
 export function formatTime(dateObj) {
 	try {
-		return new Intl.DateTimeFormat("en-AU", { hour: "numeric", minute: "2-digit" }).format(
+		return new Intl.DateTimeFormat("en-US", { hour: "numeric", minute: "2-digit" }).format(
 			dateObj,
 		);
 	} catch (e) {
