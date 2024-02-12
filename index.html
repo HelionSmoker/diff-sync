@@ -7,41 +7,41 @@
     <link rel="icon" type="image/x-icon" href="./img/favicon.png">
     <link rel="stylesheet" href="styles.css">
     <script src="https://kit.fontawesome.com/c3dc7cb2c6.js" crossorigin="anonymous"></script>
-    <title>Sync Helper</title>
+    <title>Diff-Sync</title>
 </head>
 
 <body>
     <main>
         <div class="center">
             <div class="center input-area">
-                <textarea id="sys-input" placeholder="Insert the system jobs"></textarea>
+                <textarea id="system-input" placeholder="Insert the system jobs"></textarea>
                 <textarea id="sheet-input" placeholder="Insert the spreadsheet jobs"></textarea>
             </div>
         </div>
 
         <div class="center action-area">
-            <button class="center high-importance status-display" onclick="showButtonStatus(this, processInput())">
+            <button id="sync-data-button" class="center high-importance status-display">
                 <i class="fa-solid fa-rotate"></i>
                 <p>Sync</p>
             </button>
-            <button class="center high-importance status-display" onclick="showButtonStatus(this, copyRows())">
+            <button id="copy-data-button" class="center high-importance status-display">
                 <i class="fa-regular fa-copy"></i>
                 <p>Copy</p>
             </button>
         </div>
 
-        <div id="table-container">
-            <table>
+        <div id="combined-shifts-container">
+            <table id="combined-shifts">
                 <thead>
                     <tr>
-                        <td>Date</td>
-                        <td>Conf</td>
-                        <td>Vendor</td>
-                        <td>Name</td>
-                        <td>Upload</td>
-                        <td>Source</td>
-                        <td>Comment</td>
-                        <td>Start Time</td>
+                        <td>Date <i class="fa-solid fa-arrow-up-long hidden"></i></td>
+                        <td>Conf <i class="fa-solid fa-arrow-up-long hidden"></i></td>
+                        <td>Vendor <i class="fa-solid fa-arrow-up-long hidden"></i></td>
+                        <td>Name <i class="fa-solid fa-arrow-up-long hidden"></i></td>
+                        <td>Upload <i class="fa-solid fa-arrow-up-long hidden"></i></td>
+                        <td>Source <i class="fa-solid fa-arrow-up-long hidden"></i></td>
+                        <td>Comment <i class="fa-solid fa-arrow-up-long hidden"></i></td>
+                        <td>Start Time <i class="fa-solid fa-arrow-up-long"></i></td>
                     </tr>
                 </thead>
                 <tbody></tbody>
@@ -55,7 +55,7 @@
 
     <footer class="center">
         <p><b>Stuck?</b> Try</p>
-        <button class="center demo status-display" onclick="showButtonStatus(this, showDemo())">
+        <button id="show-demo-button" class="center demo status-display">
             <i class="fa-solid fa-gamepad"></i>
             <p>Demo</p>
         </button>
@@ -65,6 +65,7 @@
         </a>
     </footer>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
     <script type="module" src="./src/main.js"></script>
 </body>
 

@@ -1,17 +1,17 @@
 import chai from "chai";
 const { assert } = chai;
 
-import { parseTable } from "../src/jobs.js";
+import { parseCSV } from "../src/jobs.js";
 import { DEMO_SYS, DEMO_SHEET, PARSED_DEMO_SYS, PARSED_DEMO_SHEET } from "../src/demo-data.js";
 
 describe("Demo Parsing Test", () => {
 	it("should parse the system jobs correctly", () => {
-		console.log(parseTable(DEMO_SYS));
-		assert.deepEqual(parseTable(DEMO_SYS), PARSED_DEMO_SYS);
+		console.log(parseCSV(DEMO_SYS));
+		assert.deepEqual(parseCSV(DEMO_SYS), PARSED_DEMO_SYS);
 	});
 
 	it("should parse the sheet jobs correctly", () => {
-		assert.deepEqual(parseTable(DEMO_SHEET), PARSED_DEMO_SHEET);
+		assert.deepEqual(parseCSV(DEMO_SHEET), PARSED_DEMO_SHEET);
 	});
 });
 
@@ -20,63 +20,63 @@ describe("Google Sheets Parser Single Line with Regular Text", function () {
 		const input = "";
 		const out = [[""]];
 
-		assert.deepEqual(parseTable(input), out);
+		assert.deepEqual(parseCSV(input), out);
 	});
 
 	it("a single cell", () => {
 		const input = "text\n";
 		const out = [["text"]];
 
-		assert.deepEqual(parseTable(input), out);
+		assert.deepEqual(parseCSV(input), out);
 	});
 
 	it("multiple cells", () => {
 		const input = `text1\ttext2\ttext3\n`;
 		const out = [["text1", "text2", "text3"]];
 
-		assert.deepEqual(parseTable(input), out);
+		assert.deepEqual(parseCSV(input), out);
 	});
 
 	it("multiple cells without newline char", () => {
 		const input = `text1\ttext2\ttext3`;
 		const out = [["text1", "text2", "text3"]];
 
-		assert.deepEqual(parseTable(input), out);
+		assert.deepEqual(parseCSV(input), out);
 	});
 
 	it("an empty cell", () => {
 		const input = `text1\t\ttext2\n`;
 		const out = [["text1", "", "text2"]];
 
-		assert.deepEqual(parseTable(input), out);
+		assert.deepEqual(parseCSV(input), out);
 	});
 
 	it("an empty final cell", () => {
 		const input = `text1\ttext2\t\n`;
 		const out = [["text1", "text2", ""]];
 
-		assert.deepEqual(parseTable(input), out);
+		assert.deepEqual(parseCSV(input), out);
 	});
 
 	it("an empty final cell without newline char", () => {
 		const input = `text1\ttext2\t`;
 		const out = [["text1", "text2", ""]];
 
-		assert.deepEqual(parseTable(input), out);
+		assert.deepEqual(parseCSV(input), out);
 	});
 
 	it("multiple empty cells", () => {
 		const input = `\t\ttext\n`;
 		const out = [["", "", "text"]];
 
-		assert.deepEqual(parseTable(input), out);
+		assert.deepEqual(parseCSV(input), out);
 	});
 
 	it("multiple empty cells  without newline char", () => {
 		const input = `\t\ttext`;
 		const out = [["", "", "text"]];
 
-		assert.deepEqual(parseTable(input), out);
+		assert.deepEqual(parseCSV(input), out);
 	});
 });
 
@@ -85,49 +85,49 @@ describe("Google Sheets Parser Single Line with Quoted Text", function () {
 		const input = `"text"`;
 		const out = [['"text"']];
 
-		assert.deepEqual(parseTable(input), out);
+		assert.deepEqual(parseCSV(input), out);
 	});
 
 	it("a cell containing two double quotes, a newline and text", () => {
 		const input = `"text1\ntext2`;
 		const out = [['"text1'], ["text2"]];
 
-		assert.deepEqual(parseTable(input), out);
+		assert.deepEqual(parseCSV(input), out);
 	});
 
 	it("a cell containing escaped double quotes and text", () => {
 		const input = `""text""`;
 		const out = [['""text""']];
 
-		assert.deepEqual(parseTable(input), out);
+		assert.deepEqual(parseCSV(input), out);
 	});
 
 	it("a cell containing escaped double quotes, a newline and text", () => {
 		const input = `"""text1\ntext2"""`;
 		const out = [['"""text1'], ['text2"""']];
 
-		assert.deepEqual(parseTable(input), out);
+		assert.deepEqual(parseCSV(input), out);
 	});
 
 	it("(str) and text", () => {
 		const input = `"""text1""\n""text2"""`;
 		const out = [['"""text1""'], ['""text2"""']];
 
-		assert.deepEqual(parseTable(input), out);
+		assert.deepEqual(parseCSV(input), out);
 	});
 
 	it("a cell containing two double quotes", () => {
 		const input = `""`;
 		const out = [['""']];
 
-		assert.deepEqual(parseTable(input), out);
+		assert.deepEqual(parseCSV(input), out);
 	});
 
 	it("multiple cells containing two double quotes", () => {
 		const input = `""\t""\t""`;
 		const out = [['""', '""', '""']];
 
-		assert.deepEqual(parseTable(input), out);
+		assert.deepEqual(parseCSV(input), out);
 	});
 
 	it("a cell containing double quotes wrapped on newline", () => {
@@ -138,21 +138,21 @@ describe("Google Sheets Parser Single Line with Quoted Text", function () {
 		const input = `"\n"`;
 		const out = [['"'], ['"']];
 
-		assert.deepEqual(parseTable(input), out);
+		assert.deepEqual(parseCSV(input), out);
 	});
 
 	it("a cell containing double quotes wrapped on newline and text", () => {
 		const input = `text1"\n"text2`;
 		const out = [['text1"'], ['"text2']];
 
-		assert.deepEqual(parseTable(input), out);
+		assert.deepEqual(parseCSV(input), out);
 	});
 
 	it("a cell containing double quotes wrapped on newline and end text", () => {
 		const input = `"\n"text`;
 		const out = [['"'], ['"text']];
 
-		assert.deepEqual(parseTable(input), out);
+		assert.deepEqual(parseCSV(input), out);
 	});
 
 	it("a cell containing two double quotes, a newline, and end text", () => {
@@ -160,7 +160,7 @@ describe("Google Sheets Parser Single Line with Quoted Text", function () {
 		const input = `"\ntext"`;
 		const out = [['"'], ['text"']];
 
-		assert.deepEqual(parseTable(input), out);
+		assert.deepEqual(parseCSV(input), out);
 	});
 
 	it("a cell containing two double quotes, a newline, and start text", () => {
@@ -168,7 +168,7 @@ describe("Google Sheets Parser Single Line with Quoted Text", function () {
 		const input = `"text\n"`;
 		const out = [["text"]];
 
-		assert.deepEqual(parseTable(input), out);
+		assert.deepEqual(parseCSV(input), out);
 	});
 
 	it("a cell containing two double quotes, multiple newlines, and start text", () => {
@@ -176,7 +176,7 @@ describe("Google Sheets Parser Single Line with Quoted Text", function () {
 		const input = `"text\n\n\n"`;
 		const out = [["text"]];
 
-		assert.deepEqual(parseTable(input), out);
+		assert.deepEqual(parseCSV(input), out);
 	});
 
 	it("a cell containing two double quotes, multiple newlines, and end text", () => {
@@ -184,35 +184,35 @@ describe("Google Sheets Parser Single Line with Quoted Text", function () {
 		const input = `"\n\n\ntext"`;
 		const out = [['"'], [""], [""], ['text"']];
 
-		assert.deepEqual(parseTable(input), out);
+		assert.deepEqual(parseCSV(input), out);
 	});
 
 	it("a cell containing two double quotes, a tab and text", () => {
 		const input = `"text1\ttext2"`;
 		const out = [['"text1', 'text2"']];
 
-		assert.deepEqual(parseTable(input), out);
+		assert.deepEqual(parseCSV(input), out);
 	});
 
 	it("a cell containing 4 double quotes", () => {
 		const input = `""""`;
 		const out = [['""""']];
 
-		assert.deepEqual(parseTable(input), out);
+		assert.deepEqual(parseCSV(input), out);
 	});
 
 	it("a cell containing one double quotes", () => {
 		const input = `"`;
 		const out = [['"']];
 
-		assert.deepEqual(parseTable(input), out);
+		assert.deepEqual(parseCSV(input), out);
 	});
 
 	it("a cell containing single quotes", () => {
 		const input = `''`;
 		const out = [["''"]];
 
-		assert.deepEqual(parseTable(input), out);
+		assert.deepEqual(parseCSV(input), out);
 	});
 
 	it("complex line with proper quotes", () => {
@@ -229,7 +229,7 @@ new lines"\t"Text with ""new\nlines"" in quotes"`;
 			],
 		];
 
-		assert.deepEqual(parseTable(input), out);
+		assert.deepEqual(parseCSV(input), out);
 	});
 
 	it("complex line with improper quotes", () => {
@@ -246,7 +246,7 @@ new lines"\t"Text with ""new\nlines in quotes"`;
 			],
 		];
 
-		assert.deepEqual(parseTable(input), out);
+		assert.deepEqual(parseCSV(input), out);
 	});
 });
 
@@ -255,21 +255,21 @@ describe("Google Sheets Parser Multiple Lines with Regular Text", function () {
 		const input = "\n\ntext\n";
 		const out = [[""], [""], ["text"]];
 
-		assert.deepEqual(parseTable(input), out);
+		assert.deepEqual(parseCSV(input), out);
 	});
 
 	it("a missing newline char at the end", () => {
 		const input = "text1\ntext2\ntext3";
 		const out = [["text1"], ["text2"], ["text3"]];
 
-		assert.deepEqual(parseTable(input), out);
+		assert.deepEqual(parseCSV(input), out);
 	});
 
 	it("multiple empty cells with regular text", () => {
 		const input = `text1\t\t\ttext4`;
 		const out = [["text1", "", "", "text4"]];
 
-		assert.deepEqual(parseTable(input), out);
+		assert.deepEqual(parseCSV(input), out);
 	});
 
 	it("multiple lines of regular text", () => {
@@ -280,7 +280,7 @@ describe("Google Sheets Parser Multiple Lines with Regular Text", function () {
 			["text7", "text8", "text9"],
 		];
 
-		assert.deepEqual(parseTable(input), out);
+		assert.deepEqual(parseCSV(input), out);
 	});
 
 	it("multiple empty cells from multiple lines of regular text", () => {
@@ -291,14 +291,14 @@ describe("Google Sheets Parser Multiple Lines with Regular Text", function () {
 			["", "text8", "text9"],
 		];
 
-		assert.deepEqual(parseTable(input), out);
+		assert.deepEqual(parseCSV(input), out);
 	});
 
 	it("lines of varying length", () => {
 		const input = `text1\ttext2\n\ntext4\ttext5\ttext6`;
 		const out = [["text1", "text2"], [""], ["text4", "text5", "text6"]];
 
-		assert.deepEqual(parseTable(input), out);
+		assert.deepEqual(parseCSV(input), out);
 	});
 });
 

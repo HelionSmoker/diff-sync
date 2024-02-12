@@ -73,7 +73,7 @@ button.high-importance {
 	max-width: 1800px;
 }
 
-#sys-input {
+#system-input {
 	flex: 0 0 30%;
 }
 
@@ -99,8 +99,8 @@ textarea {
 		min-width: 50vw;
 		height: min(1200px, 80vh);
 	}
-	
-	#sys-input {
+
+	#system-input {
 		flex: 1;
 	}
 
@@ -134,7 +134,7 @@ textarea:focus {
 	transition: background-color 0.6s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-#table-container {
+#combined-shifts-container {
 	display: none;
 	margin: 40px auto 30px;
 	padding-bottom: 10px;
@@ -153,13 +153,17 @@ table {
 	min-width: 1200px;
 }
 
-thead {
+thead>tr>td {
+	font-weight: bold;
+	cursor: pointer;
 	background-color: var(--color-primary-300);
+	transition: background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+	padding: 15px;
 }
 
-thead>tr>td {
-	padding: 15px;
-	font-weight: bold;
+thead>tr>td:hover {
+	background-color: var(--color-primary-400);
+	transition: background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 tbody>tr:nth-child(even) {
@@ -212,4 +216,20 @@ button.demo {
 	gap: 5px;
 	padding: 5px 10px;
 	border-radius: 5px;
+}
+
+.hidden {
+	opacity: 0.0;
+}
+
+.visible {
+	opacity: 1.0;
+}
+
+.upside-down {
+	rotate: 180deg;
+}
+
+.upside-up {
+	rotate: 0deg;
 }

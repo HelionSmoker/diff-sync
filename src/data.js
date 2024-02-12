@@ -1,91 +1,97 @@
-export const DEMO_SYS = `
-51230	Vendor1	Roderick Corina	1:00 AM
+export const SYSTEM_SHIFTS_HEADER = ["Confirmation", "Vendor", "Worker Name", "Start Time"];
+export const SHEET_SHIFTS_HEADER = [
+	"Start Date",
+	"Confirmation",
+	"Vendor",
+	"Worker Name",
+	"Upload Period",
+	"Source",
+	"Comment",
+	"Start Time",
+];
 
-51231	Vendor3	Trent Bevan	8:00 AM
+export const DEMO_SYSTEM = `
+51230	Vendor1	Roderick Corina	8:00 AM
+51230	Vendor2	Trent Bevan	9:00 AM
+51230	Vendor1	Marcus Dillon	5:00 PM
 
-51232	Vendor1	Marcus Dillon	5:00 PM
-51232	Vendor2	Marina Brandon	9:20 AM
-
+51231	Vendor2	Marina Brandon	8:00 AM
+51231	Vendor1	Marina Brandon	8:00 AM
 51231	Vendor2	Marina Brandon	6:00 PM
-51231	Vendor3	Trent Bevan	9:00 PM
+51231	Vend@r 2	Marina Brandon	8:00 AM
+51231	   Vendor2  	Marina Brandon	8:00 AM
 
-51233	Vendor1	Agatha Colin	8:00 AM
-51233	Vendor1	Agatha Colin	3:00 PM
-51233	Vendor2	Agatha Colin	3:00 PM
-51233	Vendor 2	Agatha Colin	3:00 PM
+51232	Vendor2	Trent Bevan	8:00 AM
 
-51234			8:00 AM
-51234			8:00 AM
-51234			8:00 AM
+51233			8:00 AM
+51233			8:00 AM
+51233			8:00 AM
+51233	Vendor1		8:00 AM
 
-51234	Vendor Name	 Zane Wilford 	6:00 AM
-51234	Vendor  N#@ame 	 Earl Harper 	6:00 AM
+51_234	Vendor1	Louis Monroe	8:00 AM
+100051234	Vendor1	Cooper Peta	8:00 AM
+00051234	Vendor2	Orpha Ethan	8:00 AM
+-0_10abc0@0_5,1.234	Vendor1	Hellen Natalie	8:00 AM
 
-51_235	Vendor1	Louis Monroe	2:00 PM
-100051235	Vendor1	Cooper Peta	2:00 PM
-00051235	Vendor2	Orpha Ethan	1:00 PM
--0_10abc0@0_5,1.235	Vendor2	Hellen Natalie	1:00 PM
+51235	Vendor1	 aleta_ rosanne 	8:00 AM
+51235	Vendor1	         FElICIa       	8:00 AM
+51235	Vendor1	 !!@# Sh##eridan456 Haywood 123	8:00 AM
+51235	Vendor1		6:00 AM
 
-51236	Vendor1	 aleta_ rosanne 	8:00 AM
-51236	Vendor1	         FElICIa       	2:00 AM
-51236	Vendor1	 !!@# Sh##eridan456 Haywood 123	9:00 AM
-51236	Vendor1		6:00 AM
+51236	Vendor1	Pheobe Bertha	8 :00 aM
+51236	Vendor1	Franklin Narelle	  8 :00 Am
+51236	Vendor1	Rochelle Maude	 bdfgh 8 !!:00 PM()#$
 
-51237	Vendor1	Pheobe Bertha	8 :00 aM
-51237	Vendor1	Franklin Narelle	  6 :00 Am   
-51237	Vendor1	Rochelle Maude	 bdfgh 5 !!:00 PM()#$  
-
-51238	Vendor1	 Sheldon Mac 	6:00 AM
-51238	Vendor1	 Naomi Brennan 	6:00 AM
-51238	Vendor1	 Kelvin Denton 	6:00 AM
-51239	Vendor1	 Dayna Kelley 	6:00 AM
-51239	Vendor1	 Cooper Isla 	6:00 AM
-51239	Vendor1	 Quinten Alvin 	6:00 AM
-51239	Vendor1	 Fiona Gwyneth 	6:00 AM
-51239	Vendor1	 Raymond Lilyrose 	6:00 AM
+51237	Vendor1	 Sheldon Mac 	8:00 AM
+51237	Vendor1	 Naomi Brennan 	8:00 AM
+51237	Vendor1	 Kelvin Denton 	8:00 AM
+51237	Vendor1	 Dayna Kelley 	8:00 AM
+51237	Vendor1	 Cooper Isla 	8:00 AM
+51237	Vendor1	 Quinten Alvin 	8:00 AM
+51237	Vendor1	 Fiona Gwyneth 	8:00 AM
+51237	Vendor1	 Raymond Lilyrose 	8:00 AM
+51237	Vendor1	 Linsey Robert 	8:00 AM
 `;
 
 export const DEMO_SHEET = `
-12/10	51230	Vendor1	Roderick Corina	before	App	everything good	1:00 AM
+12/10	51230	Vendor1	Roderick Corina	before	App	everything good	8:00 AM
+12/10/2023	51230	Vendor2	Trent Bevan	before	App	everything good	8:00 AM
+Dec 10 2023	51230	Vendor1	Marcus Dillon	during	App	no pic	8:00 AM
+././.dEc.10/2023 /	51231	Vendor1	Marina Brandon	during	App	everything good	8:00 AM
+"-2023/#^@%#^12/   10" 	51231	Vendor1	Marina Brandon	before	App	only location	8:00 AM
 
-12/10/2023	51231	Vendor1	Trent Bevan	before	App	everything good	2:00 AM
-Dec 10 2023	51232	Vendor1	Marcus Dillon	during	App	no pic	2:20 AM
-././.dEc.10/2023 /	51231	Vendor1	Marina Brandon	during	App	everything good	2:20 AM
-"-2023/#^@%#^12/   10" 	51233	Vendor1	Agatha Colin	before	App	everything good	2:20 AM
+12/10	51_231	Vendor1	Marina Brandon	before	App	no pics	8:00 AM
+12/10	100051231	Vendor1	Marina Brandon	before	App	everything good	8:00 AM
+12/10	00051231	Vendor1	Marina Brandon	before	App	no boots	8:00 AM
+12/10	-0_10abc0@0_5,1.231	Vendor2	Trent Bevan	before	App	everything good	8:00 AM
 
-12/10	51234	Vendor Name	Zane Wilford	during	App	missing boots	1:00 AM
-12/10	51234	Vendor  N#@ame 	Earl Harper	before	App	everything good	1:00 AM
+12/10	51232	Vendor1		before	App	everything good	8:00 AM
+12/10	51232	Vend@r1 		before	App	everything good	8:00 AM
 
-12/10	51_235	Vendor1	Louis Monroe	before	App	only vest  	1:00 AM
-12/10	100051235	Vendor1	Cooper Peta	before	App	everything good	1:00 AM
-12/10	00051235	Vendor1	Orpha Ethan	before	App	only location	1:00 AM
-12/10	-0_10abc0@0_5,1.235	Vendor2	Hellen Natalie	before	App	everything good	1:00 AM
+12/11	51233	Vendor1	aleta_ rosanne	before	App	everything good	8:00 AM
+12/11	51233	Vendor1	         FElICIa       	before	App	missing pics	18:00 AM
+12/11	51233	Vendor1	 !!@# Sh##eridan456 Haywood	before	App	everything good	8:00 AM
+12/11	51233	Vendor1		before	App	everything good	8:00 AM
 
-12/11	51236	Vendor1	aleta_ rosanne	before	App	everything good	12:00 AM
-12/11	51236	Vendor1	         FElICIa       	before	App	everything good	12:00 PM
-12/11	51236	Vendor1	 !!@# Sh##eridan456 Haywood	before	App	everything good	1:00 AM
-12/11	51236	Vendor1		before	App	everything good	11:00 AM
+12/10	51234	Vendor1	Sheldon Mac	be  fore	App	everything good	8:00 AM
+12/10	51236	Vendor1	Pheobe Bertha	  d#@!ur^*&ing	App	no flashlight	8:00 AM
+12/10	51236	Vendor1	Franklin Narelle		App	everything good	8:00 AM
 
-12/10	51238	Vendor1	Sheldon Mac	be  fore	App	everything good	11:00 AM
-12/10	51238	Vendor1	Naomi Brennan	  d#@!ur^*&ing	App	everything good	11:00 AM
-12/10	51238	Vendor1	Kelvin Denton		App	everything good	11:00 AM
+12/12	51236	Vendor1	Rochelle Maude	before	 app	everything good	8:00 AM
+12/10	51237	Vendor1	Sheldon Mac	before	App	everything good	8:00 AM
+12/12	51237	Vendor1	Naomi Brennan	before	a #@p*&*@p!!	no "slow down" sign	8:00 AM
+12/12	51237	Vendor1	Kelvin Denton	before	E2662m@@ail!@  	everything good	8:00 AM
+12/12	51237	Vendor1	Dayna Kelley	before		everything good	8:00 AM
 
-12/12	51239	Vendor1	Dayna Kelley	before	 app	everything good	12:00 AM
-12/12	51239	Vendor1	Cooper Isla	before	a #@p*&*@p!!	everything good	12:00 AM
-12/12	51239	Vendor1	Quinten Alvin	before	E2662m@@ail!@  	everything good	12:00 AM
-12/12	51239	Vendor1	Fiona Gwyneth	before		everything good	2:00 AM
+12/10	51237	Vendor1	Cooper Isla	before	App	everything good	8:00 AM
+12/10	51237	Vendor1	Quinten Alvin	before	App	everything good	  8:00 AM
+12/10	51237	Vendor1	Fiona Gwyneth	before	App	everything good	 bdfgh 5 !!:008:00 AM
 
-12/10	51239	Vendor1	Raymond Lilyrose	before	App	missing     boots and no "stop" sign!	3:00 PM
-
-12/10	51237	Vendor1	Pheobe Bertha	before	App	everything good	8 :00 aM
-12/10	51237	Vendor1	Franklin Narelle	before	App	everything good	  6 :00 Am   
-12/10	51237	Vendor1	Rochelle Maude	before	App	everything good	 bdfgh 5 !!:00 PM()#$  
-
-12/10	51229	Vendor1	Roderick Corina	before	App	everything good	5:00 AM
-12/10	51229	Vendor1	 Linsey Robert 	before	App	everything good	7:00 AM
+12/10	51237	Vendor1	Raymond Lilyrose	before	App	everything    good	8:00 AM
+12/10	51237	Vendor1	 Linsey Robert 	before	App	missing     boots and no "stop" sign! 	8:00 AM
 `;
 
-export const PARSED_DEMO_SYS = [
+export const PARSED_DEMO_SYSTEM = [
 	[""],
 	["51230", "Vendor1", "Roderick Corina", "1:00 AM"],
 	[""],
@@ -133,150 +139,43 @@ export const PARSED_DEMO_SYS = [
 	["51239", "Vendor1", "Raymond Lilyrose", "6:00 AM"],
 ];
 
+// prettier-ignore
 export const PARSED_DEMO_SHEET = [
 	[""],
 	["12/10", "51230", "Vendor1", "Roderick Corina", "before", "App", "everything good", "1:00 AM"],
 	[""],
-	[
-		"12/10/2023",
-		"51231",
-		"Vendor1",
-		"Trent Bevan",
-		"before",
-		"App",
-		"everything good",
-		"2:00 AM",
-	],
+	["12/10/2023", "51231", "Vendor1", "Trent Bevan", "before", "App", "everything good", "2:00 AM"],
 	["Dec 10 2023", "51232", "Vendor1", "Marcus Dillon", "during", "App", "no pic", "2:20 AM"],
-	[
-		"././.dEc.10/2023 /",
-		"51231",
-		"Vendor1",
-		"Marina Brandon",
-		"during",
-		"App",
-		"everything good",
-		"2:20 AM",
-	],
-	[
-		'"-2023/#^@%#^12/   10"',
-		"51233",
-		"Vendor1",
-		"Agatha Colin",
-		"before",
-		"App",
-		"everything good",
-		"2:20 AM",
-	],
+	["././.dEc.10/2023 /", "51231", "Vendor1", "Marina Brandon", "during", "App", "everything good", "2:20 AM"],
+	['"-2023/#^@%#^12/   10"', "51233", "Vendor1", "Agatha Colin", "before", "App", "everything good", "2:20 AM"],
 	[""],
 	["12/10", "51234", "Vendor Name", "Zane Wilford", "during", "App", "missing boots", "1:00 AM"],
-	[
-		"12/10",
-		"51234",
-		"Vendor  N#@ame",
-		"Earl Harper",
-		"before",
-		"App",
-		"everything good",
-		"1:00 AM",
-	],
+	["12/10", "51234", "Vendor  N#@ame", "Earl Harper", "before", "App", "everything good", "1:00 AM"],
 	[""],
 	["12/10", "51_235", "Vendor1", "Louis Monroe", "before", "App", "only vest", "1:00 AM"],
 	["12/10", "100051235", "Vendor1", "Cooper Peta", "before", "App", "everything good", "1:00 AM"],
 	["12/10", "00051235", "Vendor1", "Orpha Ethan", "before", "App", "only location", "1:00 AM"],
-	[
-		"12/10",
-		"-0_10abc0@0_5,1.235",
-		"Vendor2",
-		"Hellen Natalie",
-		"before",
-		"App",
-		"everything good",
-		"1:00 AM",
-	],
+	["12/10", "-0_10abc0@0_5,1.235", "Vendor2", "Hellen Natalie", "before", "App", "everything good", "1:00 AM"],
 	[""],
 	["12/11", "51236", "Vendor1", "aleta_ rosanne", "before", "App", "everything good", "12:00 AM"],
 	["12/11", "51236", "Vendor1", "FElICIa", "before", "App", "everything good", "12:00 PM"],
-	[
-		"12/11",
-		"51236",
-		"Vendor1",
-		"!!@# Sh##eridan456 Haywood",
-		"before",
-		"App",
-		"everything good",
-		"1:00 AM",
-	],
+	["12/11", "51236", "Vendor1", "!!@# Sh##eridan456 Haywood", "before", "App", "everything good", "1:00 AM"],
 	["12/11", "51236", "Vendor1", "", "before", "App", "everything good", "11:00 AM"],
 	[""],
 	["12/10", "51238", "Vendor1", "Sheldon Mac", "be  fore", "App", "everything good", "11:00 AM"],
-	[
-		"12/10",
-		"51238",
-		"Vendor1",
-		"Naomi Brennan",
-		"d#@!ur^*&ing",
-		"App",
-		"everything good",
-		"11:00 AM",
-	],
+	["12/10", "51238", "Vendor1", "Naomi Brennan", "d#@!ur^*&ing", "App", "everything good", "11:00 AM"],
 	["12/10", "51238", "Vendor1", "Kelvin Denton", "", "App", "everything good", "11:00 AM"],
 	[""],
 	["12/12", "51239", "Vendor1", "Dayna Kelley", "before", "app", "everything good", "12:00 AM"],
-	[
-		"12/12",
-		"51239",
-		"Vendor1",
-		"Cooper Isla",
-		"before",
-		"a #@p*&*@p!!",
-		"everything good",
-		"12:00 AM",
-	],
-	[
-		"12/12",
-		"51239",
-		"Vendor1",
-		"Quinten Alvin",
-		"before",
-		"E2662m@@ail!@",
-		"everything good",
-		"12:00 AM",
-	],
+	["12/12", "51239", "Vendor1", "Cooper Isla", "before", "a #@p*&*@p!!", "everything good", "12:00 AM"],
+	["12/12", "51239", "Vendor1", "Quinten Alvin", "before", "E2662m@@ail!@", "everything good", "12:00 AM"],
 	["12/12", "51239", "Vendor1", "Fiona Gwyneth", "before", "", "everything good", "2:00 AM"],
 	[""],
-	[
-		"12/10",
-		"51239",
-		"Vendor1",
-		"Raymond Lilyrose",
-		"before",
-		"App",
-		'missing     boots and no "stop" sign!',
-		"3:00 PM",
-	],
+	["12/10", "51239", "Vendor1", "Raymond Lilyrose", "before", "App", 'missing     boots and no "stop" sign!', "3:00 PM"],
 	[""],
 	["12/10", "51237", "Vendor1", "Pheobe Bertha", "before", "App", "everything good", "8 :00 aM"],
-	[
-		"12/10",
-		"51237",
-		"Vendor1",
-		"Franklin Narelle",
-		"before",
-		"App",
-		"everything good",
-		"6 :00 Am",
-	],
-	[
-		"12/10",
-		"51237",
-		"Vendor1",
-		"Rochelle Maude",
-		"before",
-		"App",
-		"everything good",
-		"bdfgh 5 !!:00 PM()#$",
-	],
+	["12/10", "51237", "Vendor1", "Franklin Narelle", "before", "App", "everything good", "6 :00 Am"],
+	["12/10", "51237", "Vendor1", "Rochelle Maude", "before", "App", "everything good", "bdfgh 5 !!:00 PM()#$"],
 	[""],
 	["12/10", "51229", "Vendor1", "Roderick Corina", "before", "App", "everything good", "5:00 AM"],
 	["12/10", "51229", "Vendor1", "Linsey Robert", "before", "App", "everything good", "7:00 AM"],
@@ -374,6 +273,7 @@ export const MAPPED_DEMO_SHEET = {
 
 export const DEMO_GLOBAL_DATE = "12/10";
 
+// prettier-ignore
 export const COMBINED_JOBS = [
 	["12/10", "51230", "Vendor1", "Roderick Corina", "before", "App", "everything good", "1:00am"],
 	["12/10", "51231", "Vendor3", "Trent Bevan", "before", "App", "everything good", "9:00pm"],
@@ -404,14 +304,82 @@ export const COMBINED_JOBS = [
 	["12/10", "51239", "Vendor1", "Cooper Isla", "before", "App", "everything good", "6:00am"],
 	["12/10", "51239", "Vendor1", "Quinten Alvin", "before", "Email", "everything good", "6:00am"],
 	["12/10", "51239", "Vendor1", "Fiona Gwyneth", "before", "App", "everything good", "6:00am"],
-	[
-		"12/10",
-		"51239",
-		"Vendor1",
-		"Raymond Lilyrose",
-		"before",
-		"App",
-		'missing     boots and no "stop" sign!',
-		"6:00am",
-	],
+	["12/10", "51239", "Vendor1", "Raymond Lilyrose", "before", "App", 'missing     boots and no "stop" sign!', "6:00am"],
 ];
+
+const BETTER_JOB_MAP = {
+	"Naomi Brennan": [
+		{
+			"OG Name": " noami BreNNan",
+			"Date": ["12/10", " 12/ 10"],
+			"Confirmation": ["51239", "100051239"],
+			"Vendor": ["Vendor 1", "  Vendor 1"],
+			"Start Time": ["8:00am", "8:00 am"],
+		},
+	],
+	"Quinten Alvin": [
+		{
+			"OG Name": " Quinten Alvin",
+			"Confirmation": ["51237", "-51s23a7"],
+			"Vendor": ["Vendor 1", "  Vendor 1"],
+			"Start Time": ["9:00am", "  9:00 am"],
+		},
+		{
+			"OG Name": " Quinten aLvin",
+			"Confirmation": ["51237", "  51237"],
+			"Vendor": ["Vendor 2", "Vendor 2  "],
+			"Start Time": ["9:00am", "ajfg9:00 a m "],
+		},
+	],
+	"Fiona Gwyneth": [
+		{
+			"OG Name": "Fiona G@@wyneth",
+			"Confirmation": ["51235", "51235"],
+			"Vendor": ["Vendor 1", "Vendor   1"],
+			"Start Time": ["2:00am", "2:00am"],
+		},
+		{
+			"OG Name": "Fiona Gw12yneth",
+			"Confirmation": ["51235", "512@#35"],
+			"Vendor": ["Vendor 1", " Vendor 1 "],
+			"Start Time": ["8:00pm", "8:00 PM"],
+		},
+	],
+};
+
+const BETTER_SYSTEM_MAP = {
+	"Naomi Brennan": [
+		{
+			"OG Name": " noami BreNNan",
+			"Date": ["12/10", " 12/ 10"],
+			"Confirmation": ["51239", "100051239"],
+			"Vendor": ["Vendor 1", "  Vendor 1"],
+			"Start Time": ["8:00am", "8:00 am"],
+		},
+	],
+	"Quinten Alvin": [
+		{
+			"OG Name": " Quinten Alvin",
+			"Date": ["12/10", "12 / 10 "],
+			"Confirmation": ["51237", "-51s23a7"],
+			"Vendor": ["Vendor 1", "Vendor 1"],
+			"Start Time": ["9:00am", "  9:00 am"],
+		},
+		{
+			"OG Name": "Quinten A@lvin  ",
+			"Date": ["12/10", " 12/10"],
+			"Confirmation": ["51237", "  51237"],
+			"Vendor": ["Vendor 2", "Vendor 2  "],
+			"Start Time": ["9:00am", "ajfg9:00 a m "],
+		},
+	],
+	"Pheobe Bertha": [
+		{
+			"OG Name": "Pheobe  Bertha",
+			"Date": ["12/11", "12 / 11"],
+			"Confirmation": ["51235", "51235"],
+			"Vendor": ["Vendor 1", "Vendor   1"],
+			"Start Time": ["2:00am", "2:00am"],
+		},
+	],
+};
