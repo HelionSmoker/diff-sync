@@ -3,7 +3,7 @@ const { assert } = chai;
 
 import {
 	sortByTime,
-	formatDate,
+	formatDateTime,
 	findMostFrequent,
 	capitalizeString,
 	calcMaskLength,

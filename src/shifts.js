@@ -1,12 +1,15 @@
-import { capitalizeString, isValidDate, copy } from "./utils.js";
 import {
 	Status,
 	parseCSV,
-	convertArrayToCSV,
+	unparseCSV,
+	copy,
+	capitalizeString,
+	isValidDate,
 	countGrandChildren,
-	formatDate,
-	formatTime,
 	findMostFrequent,
+	formatDateTime,
+	DATE_FMT_OPTIONS,
+	TIME_FMT_OPTIONS,
 } from "./utils.js";
 import { SYSTEM_SHIFTS_HEADER, SHEET_SHIFTS_HEADER } from "./data.js";
 
@@ -137,11 +140,11 @@ export class ShiftProcessor {
 			}
 		}
 
-		const currentDate = formatDate(new Date());
+		const currentDate = formatDateTime(new Date(), DATE_FMT_OPTIONS);
 		if (Object.keys(dateCounts).length == 0) return currentDate;
 
 		// DateObj gets converted to string when added to Hashmap
-		const fmtDate = formatDate(new Date(findMostFrequent(dateCounts)));
+		const fmtDate = formatDateTime(new Date(findMostFrequent(dateCounts)), DATE_FMT_OPTIONS);
 		return fmtDate !== undefined ? fmtDate : currentDate;
 	}
 
@@ -181,7 +184,7 @@ export class ShiftProcessor {
 			case 7:
 				this.shifts.map(shift => shift[7] = new Date("2020-01-01 " + shift[7]))
 				this.shifts.sort((a, b) => a[7] - b[7])
-				this.shifts.map(shift => shift[7] = formatTime(shift[7]))
+				this.shifts.map(shift => shift[7] = formatDateTime(shift[7], TIME_FMT_OPTIONS))
 				break;
 			case 1:
 				this.shifts.sort();
@@ -213,7 +216,7 @@ export class ShiftProcessor {
 				"System shifts haven't been processes, or no system shifts were found.",
 			);
 
-		copy(convertArrayToCSV(this.paddedShifts));
+		copy(unparseCSV(this.paddedShifts));
 
 		return new Status("success");
 	}
@@ -319,6 +322,8 @@ export function parseComment(comment) {
 
 export function parseTime(timeStr) {
 	if (timeStr === "") return undefined;
-	const fmtTime = timeStr.toUpperCase().replace(/[^0-9:\s]/g, ""); // Keep only digits and ':'
-	return formatTime(new Date("2020-01-01 " + fmtTime));
+
+	// Keep only digits, ':' and the letters 'A', 'P', and 'M'.
+	const fmtTime = timeStr.toUpperCase().replace(/[^0-9:APM\s]/g, "");
+	return formatDateTime(new Date("2020-01-01 " + fmtTime), TIME_FMT_OPTIONS);
 }
