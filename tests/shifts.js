@@ -12,13 +12,8 @@ import {
 	parseComment,
 	parseTime,
 } from "../src/shifts.js";
-import {
-	SYSTEM_PROCESSED_DEMO,
-	SHEET_PROCESSED_DEMO,
-	COMBINED_SHIFTS,
-	SHIFTS_DATE_DEMO,
-	DEFAULT_YEAR,
-} from "../src/data.js";
+import { SYSTEM_PROCESSED_DEMO, SHEET_PROCESSED_DEMO, COMBINED_SHIFTS } from "./demo-data.js";
+import { DEFAULT_YEAR, SHIFTS_DATE_DEMO } from "../src/demo-data.js";
 
 describe("Shift Combination", () => {
 	it("should combine the demo shifts correctly", () => {
@@ -171,7 +166,6 @@ describe("Worker Name Parser", function () {
 		assert.deepEqual(parseName(input), out);
 	});
 });
-
 
 describe("Date parser", function () {
 	it("should correctly parse a full date", () => {

@@ -15,7 +15,7 @@ import {
 	DATE_FMT_OPTIONS,
 	TIME_FMT_OPTIONS,
 	DEFAULT_YEAR,
-} from "./data.js";
+} from "./demo-data.js";
 
 export const COLUMN_METADATA = {
 	"Start Date": { parser: parseDate, type: "string" },

@@ -1,5 +1,5 @@
 import { ShiftDisplay, showButtonStatus } from "./display.js";
-import { DEMO_SYSTEM, DEMO_SHEET } from "./data.js";
+import { DEMO_SYSTEM, DEMO_SHEET } from "./demo-data.js";
 import { ShiftProcessor } from "./shifts.js";
 
 async function initializeApp() {
