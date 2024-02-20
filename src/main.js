@@ -15,36 +15,19 @@ async function initializeApp() {
 		const shiftDisplay = new ShiftDisplay(tbody, tableContainer, rowCountContainer);
 
 		bindEventListeners(shiftProcessor, shiftDisplay);
+		bindColumnSorting(shiftProcessor, shiftDisplay);
 	}
 }
 
 async function updateUIAfterProcessing(button, status, shiftDisplay, shiftProcessor) {
 	if (status === "success") {
-		shiftProcessor.sortByCol(7);
-		shiftDisplay.display(shiftProcessor.shifts);
+		shiftProcessor.sortByCols([7, 1, 3]);
+		shiftDisplay.display(shiftProcessor.getShifts());
 	}
 	showButtonStatus(button, status);
 }
 
-function bindEventListeners(shiftProcessor, shiftDisplay) {
-	document.getElementById("sync-data-button").addEventListener("click", async function () {
-		const status = await shiftProcessor.processShifts();
-		updateUIAfterProcessing(this, status.status, shiftDisplay, shiftProcessor);
-	});
-
-	document.getElementById("copy-data-button").addEventListener("click", async function () {
-		const status = await shiftProcessor.copyShifts();
-		showButtonStatus(this, status.status);
-	});
-
-	document.getElementById("show-demo-button").addEventListener("click", async function () {
-		shiftProcessor.systemInputArea.value = DEMO_SYSTEM;
-		shiftProcessor.sheetInputArea.value = DEMO_SHEET;
-
-		const status = await shiftProcessor.processShifts();
-		updateUIAfterProcessing(this, status.status, shiftDisplay, shiftProcessor);
-	});
-
+function bindColumnSorting(shiftProcessor, shiftDisplay) {
 	let prevSortColumn = 7; // Default sorting on the 'Start Time' column
 	const headerCells = [...document.querySelector("#combined-shifts>thead>tr").children];
 
@@ -64,14 +47,37 @@ function bindEventListeners(shiftProcessor, shiftDisplay) {
 
 				sortIcon.classList.remove("hidden");
 			} else {
-				sortIcon.style.transform = sortIcon.style.transform === "rotate(180deg)" ? "rotate(0deg)" : "rotate(180deg)";
+				sortIcon.style.transform =
+					sortIcon.style.transform === "rotate(180deg)"
+						? "rotate(0deg)"
+						: "rotate(180deg)";
 			}
-			console.log(shiftProcessor.shifts)
-			shiftProcessor.sortByCol(i);
-			shiftDisplay.display(shiftProcessor.shifts);
+
+			shiftProcessor.sortByCols([i]);
+			shiftDisplay.display(shiftProcessor.getShifts());
 
 			prevSortColumn = i;
 		};
+	});
+}
+
+function bindEventListeners(shiftProcessor, shiftDisplay) {
+	document.getElementById("sync-data-button").addEventListener("click", async function () {
+		const status = await shiftProcessor.processShifts();
+		updateUIAfterProcessing(this, status.status, shiftDisplay, shiftProcessor);
+	});
+
+	document.getElementById("copy-data-button").addEventListener("click", async function () {
+		const status = await shiftProcessor.copyShifts();
+		showButtonStatus(this, status.status);
+	});
+
+	document.getElementById("show-demo-button").addEventListener("click", async function () {
+		shiftProcessor.systemInputArea.value = DEMO_SYSTEM;
+		shiftProcessor.sheetInputArea.value = DEMO_SHEET;
+
+		const status = await shiftProcessor.processShifts();
+		updateUIAfterProcessing(this, status.status, shiftDisplay, shiftProcessor);
 	});
 }
 

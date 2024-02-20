@@ -29,6 +29,13 @@ export function parseCSV(csvText) {
 	});
 }
 
+export function unparseCSV(array) {
+	return Papa.unparse(array, {
+		delimiter: "\t",
+		newline: "\n",
+	});
+}
+
 export function copy(text) {
 	navigator.clipboard.writeText(text).then(
 		function () {
@@ -44,28 +51,17 @@ export function isValidDate(d) {
 	return d instanceof Date && !isNaN(d);
 }
 
-export const DATE_FMT_OPTIONS = new Intl.DateTimeFormat("en-US", {
-	month: "2-digit",
-	day: "2-digit",
-})
-
-export const TIME_FMT_OPTIONS = new Intl.DateTimeFormat("en-US", {
-	hour: 'numeric',
-	minute: '2-digit',
-	hour12: true,
-})
-
 export function formatDateTime(dateObj, formatter) {
-    try {
-        if (!(dateObj instanceof Date)) {
-            throw new Error(`Invalid date object: ${dateObj}`);
-        }
+	try {
+		if (!(dateObj instanceof Date)) {
+			throw new Error(`Invalid date object: ${dateObj}`);
+		}
 
-        return formatter.format(dateObj);
-    } catch (e) {
-        console.error(`Cannot format the date/time: ${JSON.stringify(dateObj)}`, e);
-        return undefined;
-    }
+		return formatter.format(dateObj);
+	} catch (e) {
+		console.error(`Cannot format the date/time: ${JSON.stringify(dateObj)}`, e);
+		return undefined;
+	}
 }
 
 export function findMostFrequent(freqMap) {
@@ -79,11 +75,4 @@ export function capitalizeString(s) {
 
 export function countGrandChildren(obj) {
 	return Object.values(obj).reduce((acc, value) => acc + Object.keys(value).length, 0);
-}
-
-export function unparseCSV(array) {
-	return Papa.unparse(array, {
-		delimiter: "\t",
-		newline: "\n",
-	});
 }

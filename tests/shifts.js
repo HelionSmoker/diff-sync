@@ -13,18 +13,21 @@ import {
 	parseTime,
 } from "../src/shifts.js";
 import {
-	MAPPED_DEMO_SYSTEM,
-	MAPPED_DEMO_SHEET,
-	COMBINED_JOBS,
-	DEMO_GLOBAL_DATE,
+	SYSTEM_PROCESSED_DEMO,
+	SHEET_PROCESSED_DEMO,
+	COMBINED_SHIFTS,
+	SHIFTS_DATE_DEMO,
+	DEFAULT_YEAR,
 } from "../src/data.js";
 
 describe("Shift Combination", () => {
 	it("should combine the demo shifts correctly", () => {
 		const shiftProcessor = new ShiftProcessor();
+		shiftProcessor.shiftsDate = SHIFTS_DATE_DEMO;
+
 		assert.deepEqual(
-			combineJobs(MAPPED_DEMO_SYSTEM, MAPPED_DEMO_SHEET, DEMO_GLOBAL_DATE),
-			COMBINED_JOBS,
+			shiftProcessor.combineShifts(SYSTEM_PROCESSED_DEMO, SHEET_PROCESSED_DEMO),
+			COMBINED_SHIFTS,
 		);
 	});
 });
@@ -169,47 +172,46 @@ describe("Worker Name Parser", function () {
 	});
 });
 
-const CURRENT_YEAR = new Date().getFullYear();
 
 describe("Date parser", function () {
 	it("should correctly parse a full date", () => {
 		const input = "Nov 11 2023";
-		const out = new Date("Nov 11 2023");
+		const out = new Date("Nov 11 2023").getTime();
 
 		assert.deepEqual(parseDate(input), out);
 	});
 
 	it("should correctly parse a short date", () => {
 		const input = "Nov 11";
-		const out = new Date(`Nov 11 ${CURRENT_YEAR}`);
+		const out = new Date(`Nov 11 ${DEFAULT_YEAR}`).getTime();
 
 		assert.deepEqual(parseDate(input), out);
 	});
 
 	it("should correctly parse a full numerical date", () => {
 		const input = "12/11/2023";
-		const out = new Date("Dec 11 2023");
+		const out = new Date("Dec 11 2023").getTime();
 
 		assert.deepEqual(parseDate(input), out);
 	});
 
 	it("should correctly parse a short numerical date", () => {
 		const input = "12/11";
-		const out = new Date(`Dec 11 ${CURRENT_YEAR}`);
+		const out = new Date(`Dec 11 ${DEFAULT_YEAR}`).getTime();
 
 		assert.deepEqual(parseDate(input), out);
 	});
 
 	it("should ignore special chars", () => {
 		const input = "$##$#$ 12/ $&11/ 20#😄@$23";
-		const out = new Date("Dec 11 2023");
+		const out = new Date("Dec 11 2023").getTime();
 
 		assert.deepEqual(parseDate(input), out);
 	});
 
 	it("should ignore consecutive separators", () => {
 		const input = "  12// - ..11/ 2023-/  ";
-		const out = new Date("Dec 11 2023");
+		const out = new Date("Dec 11 2023").getTime();
 
 		assert.deepEqual(parseDate(input), out);
 	});
@@ -225,49 +227,49 @@ describe("Date parser", function () {
 describe("Start Time Parser", () => {
 	it("should parse start time correctly", () => {
 		const input = "9:00 AM";
-		const out = "9:00am";
+		const out = "9:00 AM";
 
 		assert.deepEqual(parseTime(input), out);
 	});
 
 	it("should parse time with no space correctly", () => {
 		const input = "9:00AM";
-		const out = "9:00am";
+		const out = "9:00 AM";
 
 		assert.deepEqual(parseTime(input), out);
 	});
 
 	it("should ignore case", () => {
 		const input = "9:00pM";
-		const out = "9:00pm";
+		const out = "9:00 PM";
 
 		assert.deepEqual(parseTime(input), out);
 	});
 
 	it("should ignore all non-digits chars except ':'", () => {
 		const input = "bcdef!@#$9^*:0&😄&0-";
-		const out = "9:00am";
+		const out = "9:00";
 
 		assert.deepEqual(parseTime(input), out);
 	});
 
-	it("should favor 'am' if both are present", () => {
+	it("should add only one space if both 'a' and 'p' are present", () => {
 		const input = "9:00apM";
-		const out = "9:00am";
+		const out = "9:00 APM";
 
 		assert.deepEqual(parseTime(input), out);
 	});
 
-	it("should favor 'am' if neither are present", () => {
+	it("should not add a meridian when it is missing", () => {
 		const input = "9:00";
-		const out = "9:00am";
+		const out = "9:00";
 
 		assert.deepEqual(parseTime(input), out);
 	});
 
-	it("should parse correctly leading meridians", () => {
+	it("should keep the original position of the meridian", () => {
 		const input = "am 9:00";
-		const out = "9:00am";
+		const out = "AM9:00";
 
 		assert.deepEqual(parseTime(input), out);
 	});

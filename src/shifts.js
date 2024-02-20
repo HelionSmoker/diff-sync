@@ -8,20 +8,24 @@ import {
 	countGrandChildren,
 	findMostFrequent,
 	formatDateTime,
+} from "./utils.js";
+import {
+	SYSTEM_SHIFTS_HEADER,
+	SHEET_SHIFTS_HEADER,
 	DATE_FMT_OPTIONS,
 	TIME_FMT_OPTIONS,
-} from "./utils.js";
-import { SYSTEM_SHIFTS_HEADER, SHEET_SHIFTS_HEADER } from "./data.js";
+	DEFAULT_YEAR,
+} from "./data.js";
 
-const PARSE_FUNCS = {
-	"Start Date": parseDate,
-	"Confirmation": parseConf,
-	"Worker Name": parseName,
-	"Vendor": parseVendor,
-	"Upload Period": parseUploadPeriod,
-	"Source": parseSource,
-	"Comment": parseComment,
-	"Start Time": parseTime,
+export const COLUMN_METADATA = {
+	"Start Date": { parser: parseDate, type: "string" },
+	"Confirmation": { parser: parseConf, type: "string" },
+	"Worker Name": { parser: parseName, type: "string" },
+	"Vendor": { parser: parseVendor, type: "string" },
+	"Upload Period": { parser: parseUploadPeriod, type: "string" },
+	"Source": { parser: parseSource, type: "string" },
+	"Comment": { parser: parseComment, type: "string" },
+	"Start Time": { parser: parseTime, type: "time" },
 };
 const MASK_SIZE = 250;
 const HEADER_SIZE = 2;
@@ -29,14 +33,11 @@ const HEADER_SIZE = 2;
 export class ShiftProcessor {
 	constructor(systemInputArea, sheetInputArea) {
 		this.shifts = [];
-		this.paddedShifts = [];
+		this.fmtShifts = [];
+		this.shiftsDate;
 
 		this.systemInputArea = systemInputArea;
 		this.sheetInputArea = sheetInputArea;
-
-		this.systemShiftCount = 0;
-		this.sheetShiftCount = 0;
-		this.shiftsDate;
 
 		this.currentSortColumn = null;
 	}
@@ -45,22 +46,16 @@ export class ShiftProcessor {
 		const systemCSV = parseCSV(
 			`${SYSTEM_SHIFTS_HEADER.join("\t")}\n${this.systemInputArea.value}`,
 		);
-		console.log(JSON.stringify(await systemCSV));
 		const systemData = await this.processCSV(systemCSV, SYSTEM_SHIFTS_HEADER);
-
 		const sheetCSV = parseCSV(
 			`${SHEET_SHIFTS_HEADER.join("\t")}\n${this.sheetInputArea.value}`,
 		);
 		const sheetData = await this.processCSV(sheetCSV, SHEET_SHIFTS_HEADER);
-		// console.log(JSON.stringify(systemData), '\n\n', JSON.stringify(sheetData));
-		this.systemShiftCount = countGrandChildren(systemData);
-		this.sheetShiftCount = Object.keys(sheetData).length; //todo, not from map
 
 		if (this.systemShiftCount <= 0) return new Status("failure", "No system shifts found.");
 
 		this.shiftsDate = this.getShiftsDate(sheetData);
 		this.shifts = this.combineShifts(systemData, sheetData);
-		this.paddedShifts = this.padShifts(this.shifts);
 
 		return new Status("success");
 	}
@@ -91,7 +86,7 @@ export class ShiftProcessor {
 
 					// Store both the parse value and the original value for
 					// diffing purposes later on
-					entry[field] = [PARSE_FUNCS[field](row[field]), row[field]];
+					entry[field] = [COLUMN_METADATA[field].parser(row[field]), row[field]];
 				}
 
 				dataObject[workerName].push(entry);
@@ -107,24 +102,28 @@ export class ShiftProcessor {
 			shifts.forEach((shift) => {
 				let row = [this.shiftsDate, shift["Confirmation"][0], shift["Vendor"][0], worker];
 
-				// Use `find` instead of `forEach` to get the first matching sheet shift
-				// prettier-ignore
-				const sheetCounterPart = sheetData[worker] ?
-					sheetData[worker].find((sheetShift) => shift["Vendor"][0] === sheetShift["Vendor"][0] &&
-						shift["Start Time"][0] === sheetShift["Start Time"][0])
+				const sheetCounterPart = sheetData[worker]
+					? sheetData[worker].find(
+							(sheetShift) =>
+								shift["Vendor"][0] === sheetShift["Vendor"][0] &&
+								shift["Start Time"][0] === sheetShift["Start Time"][0],
+					  )
 					: null;
 
 				if (sheetCounterPart) {
-					// Correctly access `sheetCounterPart` properties instead of `sheetData[worker]`
 					row = row.concat(
 						sheetCounterPart["Upload Period"][0],
 						sheetCounterPart["Source"][0],
 						sheetCounterPart["Comment"][0],
 					);
 				} else {
-					row = row.concat("", "App", ""); // Correctly use `concat` for arrays
+					row = row.concat("", "App", "");
 				}
-				row.push(shift["Start Time"][0]); // Append start time at the end
+				row.push(
+					new Date(
+						`${this.shiftsDate}/${DEFAULT_YEAR} ${shift["Start Time"][0]}`,
+					).getTime(),
+				);
 				result.push(row);
 			});
 		}
@@ -143,18 +142,21 @@ export class ShiftProcessor {
 		const currentDate = formatDateTime(new Date(), DATE_FMT_OPTIONS);
 		if (Object.keys(dateCounts).length == 0) return currentDate;
 
-		// DateObj gets converted to string when added to Hashmap
-		const fmtDate = formatDateTime(new Date(findMostFrequent(dateCounts)), DATE_FMT_OPTIONS);
+		const mostFreqDate = new Date(Number(findMostFrequent(dateCounts)));
+		const fmtDate = formatDateTime(mostFreqDate, DATE_FMT_OPTIONS);
 		return fmtDate !== undefined ? fmtDate : currentDate;
 	}
 
-	padShifts(shifts) {
+	padShifts() {
 		// Avoid modifying the original array
-		let result = [...shifts];
+		let result = [...this.getShifts];
+
+		const systemShiftCount = countGrandChildren(systemData);
+		const sheetShiftCount = Object.keys(sheetData).length; //todo, not from map
 
 		// Adjusting for header offset
-		const systemMaskLength = this.calcMaskLength(this.systemShiftCount) - 2;
-		const sheetMaskLength = this.calcMaskLength(this.sheetShiftCount) - 2;
+		const systemMaskLength = this.calcMaskLength(systemShiftCount) - 2;
+		const sheetMaskLength = this.calcMaskLength(sheetShiftCount) - 2;
 
 		const systemPadRows = Math.max(0, systemMaskLength - result.length);
 		result = result.concat(
@@ -173,40 +175,45 @@ export class ShiftProcessor {
 			: (Math.ceil(shiftCount / 10) + 1) * 10;
 	}
 
-	sortByCol(colIndex) {
-		if (this.currentSortColumn === colIndex) {
+	sortByCols(colIndexes) {
+		// First column to be sorted is most significant
+		if (this.currentSortColumn === colIndexes[0]) {
 			this.shifts.reverse();
-			this.paddedShifts = this.padShifts(this.shifts);
-			return;
-		}
+		} else {
+			this.shifts.sort((a, b) => {
+				for (let colIndex of colIndexes) {
+					let valA = a[colIndex];
+					let valB = b[colIndex];
 
-		switch (colIndex) {
-			case 7:
-				this.shifts.map(shift => shift[7] = new Date("2020-01-01 " + shift[7]))
-				this.shifts.sort((a, b) => a[7] - b[7])
-				this.shifts.map(shift => shift[7] = formatDateTime(shift[7], TIME_FMT_OPTIONS))
-				break;
-			case 1:
-				this.shifts.sort();
-				break;
-			default:
-				this.shifts.sort((a, b) => {
-					const valA = a[colIndex];
-					const valB = b[colIndex];
-
-					// Handle empty strings for ascending and descending sort
+					// Handle empty strings to place them at the end or start based on sort orientation
 					if (valA === "" && valB === "") return 0;
 					if (valA === "") return 1;
 					if (valB === "") return -1;
 
 					if (valA < valB) return -1;
 					if (valA > valB) return 1;
-					return 0;
-				});
+				}
+				return 0;
+			});
 		}
 
-		this.paddedShifts = this.padShifts(this.shifts);
-		this.currentSortColumn = colIndex;
+		this.currentSortColumn = colIndexes[0]; // Keep track of the current sort columns
+	}
+
+	getShifts() {
+		const colNames = Object.keys(COLUMN_METADATA);
+
+		const formattedShifts = this.shifts.map((row) =>
+			row.map((value, index) => {
+				const colData = COLUMN_METADATA[colNames[index]].type;
+				if (colData === "time") {
+					return formatDateTime(new Date(value), TIME_FMT_OPTIONS);
+				}
+				return value;
+			}),
+		);
+
+		return formattedShifts;
 	}
 
 	copyShifts() {
@@ -216,7 +223,7 @@ export class ShiftProcessor {
 				"System shifts haven't been processes, or no system shifts were found.",
 			);
 
-		copy(unparseCSV(this.paddedShifts));
+		copy(unparseCSV(this.padShifts()));
 
 		return new Status("success");
 	}
@@ -235,15 +242,11 @@ export function parseDate(dateStr) {
 	switch (parts.length) {
 		case 1:
 			// Assume the user entered only the day
-			userProvidedDate = new Date(
-				currentDate.getFullYear(),
-				currentDate.getMonth(),
-				parts[0],
-			);
+			userProvidedDate = new Date(DEFAULT_YEAR, currentDate.getMonth(), parts[0]);
 			break;
 		case 2:
 			// Assume the user entered only the month and day
-			userProvidedDate = new Date(`${currentDate.getFullYear()} ${parts[0]} ${parts[1]}`);
+			userProvidedDate = new Date(`${DEFAULT_YEAR} ${parts[0]} ${parts[1]}`);
 			break;
 		case 3:
 			// Directly use the formattedDate, assuming MM/DD/YYYY or similar
@@ -255,7 +258,7 @@ export function parseDate(dateStr) {
 	}
 
 	if (isValidDate(userProvidedDate)) {
-		return userProvidedDate;
+		return userProvidedDate.getTime();
 	} else {
 		console.error(`Invalid date: ${userProvidedDate}`);
 		return undefined;
@@ -266,17 +269,20 @@ const CONF_LONG_THRESHOLD = 10 ** 8;
 
 export function parseConf(conf) {
 	const confNum = conf.replace(/\D/g, ""); // Keep only the digits
-	if (confNum.length === 0) return 0;
+	if (confNum.length === 0) return undefined;
 
 	const confInt = parseInt(confNum, 10);
-	if (confInt >= CONF_LONG_THRESHOLD * 10) return 0;
+	if (confInt >= CONF_LONG_THRESHOLD * 10) return undefined;
 
 	return confInt > CONF_LONG_THRESHOLD ? confInt - CONF_LONG_THRESHOLD : confInt;
 }
 
 export function parseVendor(vendor) {
 	// Keep only alphanumerical and spaces
-	return vendor.replace(/[^a-zA-Z0-9\s]/g, "").trim().replace(/ +/g, " "); // Remove multiple consecutive spaces
+	return vendor
+		.replace(/[^a-zA-Z0-9\s]/g, "")
+		.trim()
+		.replace(/ +/g, " "); // Remove multiple consecutive spaces
 }
 
 const NAME_DIACRITICS_PATTERN = /[àáâãäåæçèéêëìíîïñòóôõöøùúûüýÿăąćčđėęěğıįłńňœřşšţťūůűųźž]/;
@@ -317,13 +323,24 @@ export function parseSource(source) {
 }
 
 export function parseComment(comment) {
-	return comment.split(' ').filter(Boolean).map(word => word.charAt(0) + word.slice(1).toLowerCase()).join(' ');
+	return comment
+		.split(" ")
+		.filter(Boolean)
+		.map((word) => word.charAt(0) + word.slice(1).toLowerCase())
+		.join(" ");
 }
 
 export function parseTime(timeStr) {
 	if (timeStr === "") return undefined;
 
 	// Keep only digits, ':' and the letters 'A', 'P', and 'M'.
-	const fmtTime = timeStr.toUpperCase().replace(/[^0-9:APM\s]/g, "");
-	return formatDateTime(new Date("2020-01-01 " + fmtTime), TIME_FMT_OPTIONS);
+	// Then, match any digit followed by 0 or more whitespace followed by either 'A' or 'P'
+	// and replace it with the digit, a whitespace and the letter. We need a whitespace
+	// between the hour and the meridian for date parsing later on.
+
+	return timeStr
+		.toUpperCase()
+		.replace(/[^0-9:APM]/g, "")
+		.replace(/(\d)\s*A/g, "$1 A")
+		.replace(/(\d)\s*P/g, "$1 P")
 }
